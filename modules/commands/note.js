@@ -43,8 +43,8 @@ module.exports = {
         const content = fs.readFileSync(path, 'utf8')
         const response = await axios.post('https://paste.rs/', content, {
           headers: {
-            'Content-Type': 'text/plain'
-          }
+            'Content-Type': 'text/plain',
+          },
         })
         const url = response.data.trim()
         return send(
