@@ -1,4 +1,5 @@
 const { readdirSync, readFileSync, writeFileSync, emptyDir } = require('fs-extra')
+const path = require('path')
 const login = require('@dongdev/fca-unofficial')
 const fs = require('fs-extra')
 const moment = require('moment-timezone')
@@ -113,10 +114,8 @@ function onBot({ models }) {
       appState = JSON.parse(appStateContent)
     } else {
       // Là cookie string
-      console.log('Đang chuyển cookies string trong appstate.json sang định dạng JSON...')
       appState = parseCookiesToAppState(appStateContent)
       fs.writeFileSync('./appstate.json', JSON.stringify(appState, null, 2))
-      console.log('✅ Đã chuyển đổi thành công!')
     }
   } catch (error) {
     console.log('Lỗi đọc appstate.json:', error.message)
@@ -150,7 +149,7 @@ function onBot({ models }) {
         )
       )
       // Tự động dọn cache
-      const cacheDir = join(global.client.mainPath, 'modules', 'commands', 'cache')
+      const cacheDir = path.join(global.client.mainPath, 'modules', 'commands', 'cache')
       emptyDir(cacheDir, (err) => {
         if (err) console.error('Lỗi khi dọn cache:', err)
       })
@@ -202,8 +201,8 @@ function onBot({ models }) {
           }
           return loadedCount
         }
-        const commandPath = join(global.client.mainPath, 'modules', 'commands')
-        const eventPath = join(global.client.mainPath, 'modules', 'events')
+        const commandPath = path.join(global.client.mainPath, 'modules', 'commands')
+        const eventPath = path.join(global.client.mainPath, 'modules', 'events')
         const loadedCommandsCount = loadModules(
           commandPath,
           'commands',
