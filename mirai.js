@@ -24,9 +24,8 @@ global.client = {
   handleReaction: [],
   handleReply: [],
   mainPath: process.cwd(),
-  configPath: '',
-  getTime: (option) =>
-    moment.tz('Asia/Ho_Chi_minh').format(
+  getTime: (option) => {
+    return moment.tz('Asia/Ho_Chi_minh').format(
       {
         seconds: 'ss',
         minutes: 'mm',
@@ -38,7 +37,8 @@ global.client = {
         fullYear: 'DD/MM/YYYY',
         fullTime: 'HH:mm:ss DD/MM/YYYY',
       }[option]
-    ),
+    )
+  },
 }
 global.data = new Object({
   threadInfo: new Map(),
@@ -234,6 +234,6 @@ function onBot({ models }) {
     console.log(error)
   }
 })()
-process.on('unhandledRejection', (_err, p) => {
+process.on('unhandledRejection', (err, p) => {
   console.log(p)
 })

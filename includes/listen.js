@@ -67,10 +67,10 @@ module.exports = ({ api, models }) => {
     }
     try {
       let threadInfo = await Threads.getData(threadID)
-      if (!threadInfo || !threadInfo.threadInfo || !threadInfo.threadInfo.name) {
+      if (!threadInfo || !threadInfo.threadInfo || !threadInfo.threadInfo.threadName) {
         threadInfo = await api.getThreadInfo(threadID)
       }
-      const name = threadInfo?.threadInfo?.name || `Thread ${threadID}`
+      const name = threadInfo?.threadInfo?.threadName || threadInfo?.threadName || `Thread ${threadID}`
       threadCache.set(threadID, { name, timestamp: now })
       return name
     } catch (err) {
@@ -269,7 +269,7 @@ module.exports = ({ api, models }) => {
               const time = moment().tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY HH:mm:ss')
               const width = 68 // box width
               const title = ` ${nameBox} `
-              const { top, bottom } = makeBorder(title, width);
+              const { top, bottom } = makeBorder(title, width)
 
               const labelWidth = 14
               const lines = []
