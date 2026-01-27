@@ -3,6 +3,38 @@ const login = require('@dongdev/fca-unofficial')
 const fs = require('fs-extra')
 const moment = require('moment-timezone')
 const logger = require('./utils/log')
+
+function parseCookiesToAppState(cookieString) {
+  if (!cookieString || typeof cookieString !== 'string') {
+    throw new Error('Invalid cookie string provided')
+  }
+
+  const currentTime = new Date().toISOString()
+  const defaultConfig = {
+    domain: 'facebook.com',
+    path: '/',
+    hostOnly: false,
+    creation: currentTime,
+    lastAccessed: currentTime,
+  }
+
+  const cookies = cookieString
+    .split(';')
+    .map((item) => item.trim())
+    .filter(Boolean)
+
+  return cookies
+    .map((cookie) => {
+      const [key, ...valueParts] = cookie.split('=')
+      const value = valueParts.join('=') // Handle values with '=' in them
+      return {
+        key: key.trim(),
+        value: value.trim(),
+        ...defaultConfig,
+      }
+    })
+}
+
 if (!fs.existsSync('./utils/data')) {
   fs.mkdirSync('./utils/data', { recursive: true })
 }
@@ -72,22 +104,19 @@ global.getText = (...args) => {
   return text
 }
 function onBot({ models }) {
-  // Chuyển cookies sang appstate nếu có file cookies.json
-  if (fs.existsSync('./cookies.json')) {
-    console.log('Đang chuyển cookies sang appstate...')
-    login(
-      { cookies: JSON.parse(fs.readFileSync('./cookies.json', 'utf8')) },
-      (convertError, api) => {
-        if (convertError) {
-          console.log('Lỗi chuyển đổi cookies:', convertError)
-          return
-        }
-        fs.writeFileSync('./appstate.json', JSON.stringify(api.getAppState(), null, 2))
-        console.log('✅ Đã chuyển cookies sang appstate thành công!')
-        api.logout()
-      }
-    )
-    return // Dừng để không login lại ngay
+  // Chuyển cookies string sang appstate nếu có file cookies.txt
+  if (fs.existsSync('./cookies.txt')) {
+    console.log('Đang chuyển cookies string sang appstate...')
+    try {
+      const cookieString = fs.readFileSync('./cookies.txt', 'utf8').trim()
+      const appState = parseCookiesToAppState(cookieString)
+      fs.writeFileSync('./appstate.json', JSON.stringify(appState, null, 2))
+      console.log('✅ Đã chuyển cookies string sang appstate thành công!')
+      fs.unlinkSync('./cookies.txt') // Xóa file sau khi chuyển
+    } catch (error) {
+      console.log('Lỗi chuyển đổi cookies:', error.message)
+      return
+    }
   }
 
   login(
