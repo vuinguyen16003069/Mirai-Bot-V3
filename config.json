@@ -39,5 +39,9 @@
             "status": true,
             "timeOut": 60
         }
+    },
+    "daily": {
+        "cooldownTime": 86400000,
+        "rewardCoin": 100000000
     }
 }
