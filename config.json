@@ -22,10 +22,10 @@
     "FACEBOOK_ADMIN": "",
     "BOTNAME": "Mirai-V3-Unofficial",
     "PREFIX": "!",
-    "BOXADMIN": "6804616456270022",
+    "BOXADMIN": "",
     "ADMINBOT": [],
     "NDH": [
-        "502275138"
+        ""
     ],
     "version": "3.0.0",
     "menu": {
