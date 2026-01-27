@@ -1,5 +1,5 @@
 const axios = require('axios')
-const BASE_URL = 'http://dongdev.click/api/down/media'
+const BASE_URL = 'https://api.satoru.click/api/downall?url='
 
 this.config = {
   name: 'autodown',
@@ -24,30 +24,18 @@ this.handleEvent = async ({ api, event, args }) => {
   const head = (app) => `[ AUTODOWN - ${app} ]\n────────────────`
   for (const url of args) {
     if (/(^https:\/\/)(\w+\.|m\.)?(facebook|fb)\.(com|watch)\//.test(url)) {
-      const res = (await axios.get(`${BASE_URL}?url=${encodeURIComponent(url)}`)).data
-      if (res.attachments && res.attachments.length > 0) {
+      const res = (await axios.get(`${BASE_URL}${encodeURIComponent(url)}`)).data
+      if (res.success && res.data.attachment && res.data.attachment.length > 0) {
         const attachment = []
-        if (res.queryStorieID) {
-          const match = res.attachments.find((item) => item.id === res.queryStorieID)
-          if (match && match.type === 'Video') {
-            const videoUrl = match.url.hd || match.url.sd
-            attachment.push(await stream(videoUrl, 'mp4'))
-          } else if (match && match.type === 'Photo') {
-            const photoUrl = match.url
-            attachment.push(await stream(photoUrl, 'jpg'))
-          }
-        } else {
-          for (const attachmentItem of res.attachments) {
-            if (attachmentItem.type === 'Video') {
-              const videoUrl = attachmentItem.url.hd || attachmentItem.url.sd
-              attachment.push(await stream(videoUrl, 'mp4'))
-            } else if (attachmentItem.type === 'Photo') {
-              attachment.push(await stream(attachmentItem.url, 'jpg'))
-            }
+        for (const attachmentItem of res.data.attachment) {
+          if (attachmentItem.type === 'Video') {
+            attachment.push(await stream(attachmentItem.url, 'mp4'))
+          } else if (attachmentItem.type === 'Photo') {
+            attachment.push(await stream(attachmentItem.url, 'jpg'))
           }
         }
         send({
-          body: `${head('FACEBOOK')}\n⩺ Tiêu đề: ${res.message || 'Không có tiêu đề'}\n${res.like ? `⩺ Lượt thích: ${res.like}\n` : ''}${res.comment ? `⩺ Bình luận: ${res.comment}\n` : ''}${res.share ? `⩺ Chia sẻ: ${res.share}\n` : ''}⩺ Tác giả: ${res.author || 'unknown'}`.trim(),
+          body: `${head('FACEBOOK')}\n⩺ Tiêu đề: ${res.data.title || 'Không có tiêu đề'}\n⩺ Tác giả: ${res.data.author || 'unknown'}`.trim(),
           attachment,
         })
       }
@@ -73,10 +61,10 @@ this.handleEvent = async ({ api, event, args }) => {
                     : /capcut\.com/.test(url)
                       ? 'CAPCUT'
                       : 'UNKNOWN'
-      const res = (await axios.get(`${BASE_URL}?url=${encodeURIComponent(url)}`)).data
+      const res = (await axios.get(`${BASE_URL}${encodeURIComponent(url)}`)).data
       const attachments = []
-      if (res.attachments && res.attachments.length > 0) {
-        for (const at of res.attachments) {
+      if (res.success && res.data.attachment && res.data.attachment.length > 0) {
+        for (const at of res.data.attachment) {
           if (at.type === 'Video') {
             attachments.push(await stream(at.url, 'mp4'))
           } else if (at.type === 'Photo') {
@@ -86,7 +74,7 @@ this.handleEvent = async ({ api, event, args }) => {
           }
         }
         send({
-          body: `${head(platform)}\n⩺ Tiêu đề: ${res.message || 'Không có tiêu đề'}`,
+          body: `${head(platform)}\n⩺ Tiêu đề: ${res.data.title || 'Không có tiêu đề'}\n⩺ Tác giả: ${res.data.author || 'unknown'}`,
           attachment: attachments,
         })
       }
