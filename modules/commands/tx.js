@@ -28,7 +28,6 @@ const formatMoney = (amount) => {
   }
 };
 
-const path_file = path.join(__dirname, '..', '..', 'data', 'status-hack.json');
 let data = {};
 const save = async (_d) => {
   try {

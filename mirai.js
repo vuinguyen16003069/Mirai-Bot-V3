@@ -75,6 +75,14 @@ function onBot({ models }) {
           "| |\\/| || || |_) |  / _ \\  | |_____|  _ \\| | | || |____\\ \\ / /  |_ \\ " + "\n" +
           "| |  | || ||  _ <  / ___ \\ | |_____| |_) | |_| || |_____\\ V /  ___) |" + "\n" +
           "|_|  |_|___|_| \\_\\/_/   \\_\\___|    |____/ \\___/ |_|      \\_/  |____/ \n"));
+        // Tự động dọn cache
+        const cacheDir = join(global.client.mainPath, 'modules', 'commands', 'cache');
+        if (existsSync(cacheDir)) {
+          rm(cacheDir, { recursive: true, force: true }, (err) => {
+            if (err) console.error('Lỗi khi dọn cache:', err);
+            else console.log('Đã dọn cache thành công.');
+          });
+        }
         (function () {
             const loadModules = (path, collection, disabledList, type) => {
               const items = readdirSync(path).filter(file => file.endsWith('.js') && !file.includes('example') && !disabledList.includes(file));
