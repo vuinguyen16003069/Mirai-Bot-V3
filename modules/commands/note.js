@@ -7,7 +7,7 @@ module.exports = {
     version: '0.0.1',
     hasPermssion: 3,
     credits: 'DC-Nam',
-    description: 'https://niiozic.site/note/:UUID',
+    description: 'Upload code to paste.rs',
     commandCategory: 'Admin',
     usages: '[]',
     prefix: false,
@@ -40,23 +40,22 @@ module.exports = {
       } else {
         //if (o.args[0] === 'edit' && o.args[1])path = `${__dirname}/${o.args[1]}`;
         if (!fs.existsSync(path)) return send(`❎ Đường dẫn file không tồn tại để export`)
-        const uuid_raw = require('uuid').v4()
-        const url_raw = new URL(`https://api.dungkon.id.vn/note/${uuid_raw}`)
-        const url_redirect = new URL(`https://api.dungkon.id.vn/note/${require('uuid').v4()}`)
-        await axios.put(url_raw.href, fs.readFileSync(path, 'utf8'))
-        url_redirect.searchParams.append('raw', uuid_raw)
-        await axios.put(url_redirect.href)
-        url_redirect.searchParams.delete('raw')
-        //url_redirect.searchParams.append('raw', 'true');
+        const content = fs.readFileSync(path, 'utf8')
+        const response = await axios.post('https://paste.rs/', content, {
+          headers: {
+            'Content-Type': 'text/plain'
+          }
+        })
+        const url = response.data.trim()
         return send(
-          `📝 Raw: ${url_redirect.href}\n\n✏️ Edit: ${url_raw.href}\n────────────────\n• File: ${path}\n\n📌 Thả cảm xúc để upload code`
+          `📝 Raw: ${url}\n────────────────\n• File: ${path}\n\n📌 Thả cảm xúc để upload code`
         ).then((res) => {
           res = {
             ...res,
             name,
             path,
             o,
-            url: url_redirect.href,
+            url,
             action: 'confirm_replace_content',
           }
           global.client.handleReaction.push(res)
