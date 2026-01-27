@@ -1,8 +1,6 @@
 const { readdirSync, readFileSync, writeFileSync, existsSync, unlinkSync, rm } = require("fs-extra");
 const { join, resolve } = require("path");
 const { execSync } = require('child_process');
-const logger = require("./utils/log.js");
-//const login = require("../fca-unofficial");
 const login = require('@dongdev/fca-unofficial')
 const fs = require('fs-extra');
 const moment = require('moment-timezone');
@@ -60,7 +58,7 @@ global.getText = function (...args) {
     return text;
 }
 function onBot({ models }) {
-    login({ appState: global.utils.parseCookies(fs.readFileSync('./cookie.txt', 'utf8'))}, async (loginError, api) => {
+    login({ appState: JSON.parse(fs.readFileSync('./appstate.json', 'utf8'))}, async (loginError, api) => {
         if (loginError) return console.log(loginError);
         api.setOptions(global.config.FCAOption);
         writeFileSync('./utils/data/fbstate.json', JSON.stringify(api.getAppState(), null, 2));

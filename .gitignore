@@ -1,6 +1,8 @@
 node_modules/
 package-lock.json
 cookie.txt
+appstate.json
 utils/data/fbstate.json
 includes/data.sqlite
 *.txt
+fca-config.json
