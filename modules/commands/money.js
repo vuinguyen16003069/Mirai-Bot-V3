@@ -1,186 +1,133 @@
+const axios = require('axios')
+const moment = require('moment-timezone')
+
 module.exports.config = {
   name: 'money',
-  version: '1.1.1',
+  version: '1.2.0',
   hasPermssion: 0,
-  credits: 'Quất',
-  description: 'vừa setmoney vừa check money?',
+  credits: 'Quất & G3K Optimizer',
+  description: 'Quản lý tiền tệ: Check, Set, Pay, Tính toán (Admin)',
   commandCategory: 'Người dùng',
-  usages: '/money [ + , - , * , / , ++ , -- , +- , +% , -% ]',
-  cooldowns: 0,
+  usages: '[+/-/*/ / / ++/ --/ +-/ ^/ √/ +%/ -%/ pay] [số tiền]',
+  cooldowns: 2,
   usePrefix: false,
 }
 
 module.exports.run = async ({ Currencies, api, event, args, Users, permssion }) => {
-  const axios = require('axios')
-  const { senderID, mentions, type, messageReply } = event
-  let targetID = senderID
-  if (type === 'message_reply') {
-    targetID = messageReply.senderID
-  } else if (Object.keys(mentions).length > 0) {
-    targetID = Object.keys(mentions)[0]
-  }
-  const name = await Users.getNameUser(targetID)
-  const i = (url) => axios.get(url, { responseType: 'stream' }).then((r) => r.data)
+  const { senderID, mentions, type, messageReply, threadID } = event
+  const i = async (url) => (await axios.get(url, { responseType: 'stream' })).data
   const link = 'https://files.catbox.moe/shxujt.gif'
-  const moment = require('moment-timezone')
   const time = moment.tz('Asia/Ho_Chi_Minh').format('HH:mm:ss - DD/MM/YYYY')
-  const money = (await Currencies.getData(targetID)).money
-  const mon = args[1]
+
+  // Xác định đối tượng mục tiêu
+  const targetID =
+    type === 'message_reply'
+      ? messageReply.senderID
+      : Object.keys(mentions).length > 0
+        ? Object.keys(mentions)[0]
+        : senderID
+
   try {
-    switch (args[0]) {
-      case '+': {
-        if (permssion < 2) return api.sendMessage('Bạn không đủ quyền', event.threadID)
-        await Currencies.increaseMoney(targetID, parseInt(mon, 10))
-        return api.sendMessage(
-          {
-            body: `💸 Money của ${name} được cộng thêm ${mon}$\n💸 Hiện còn ${money + parseInt(mon, 10)}$\n⏰ ${time}`,
-            attachment: await i(link),
-          },
-          event.threadID
-        )
-      }
+    const name = await Users.getNameUser(targetID)
+    const userData = (await Currencies.getData(targetID)) || {}
+    const currentMoney = userData.money || 0
 
-      case '-': {
-        if (permssion < 2) return api.sendMessage('Bạn không đủ quyền', event.threadID)
-        await Currencies.increaseMoney(targetID, parseInt(-mon, 10))
-        return api.sendMessage(
-          {
-            body: `💸 Money của ${name} bị trừ đi ${mon}$\n💸 Hiện còn ${money - mon}$\n⏰ ${time}`,
-            attachment: await i(link),
-          },
-          event.threadID
-        )
-      }
-
-      case '*': {
-        if (permssion < 2) return api.sendMessage('Bạn không đủ quyền', event.threadID)
-        await Currencies.increaseMoney(targetID, parseInt(money * (args[1] - 1), 10))
-        return api.sendMessage(
-          {
-            body: `💸 Money của ${name} được nhân lên ${mon} lần\n💸 Hiện còn ${money * mon}$\n⏰ ${time}`,
-            attachment: await i(link),
-          },
-          event.threadID
-        )
-      }
-
-      case '/': {
-        if (permssion < 2) return api.sendMessage('Bạn không đủ quyền', event.threadID)
-        await Currencies.increaseMoney(targetID, parseInt(-money + money / mon, 10))
-        return api.sendMessage(
-          {
-            body: `💸 Money của ${name} bị chia đi ${args[1]} lần\n💸 Hiện còn ${money / mon}$\n⏰ ${time}`,
-            attachment: await i(link),
-          },
-          event.threadID
-        )
-      }
-
-      case '++': {
-        if (permssion < 2) return api.sendMessage('Bạn không đủ quyền', event.threadID)
-        await Currencies.increaseMoney(targetID, Infinity)
-        return api.sendMessage(
-          {
-            body: `💸 Money của ${name} được thay đổi thành vô hạn\n💸 Hiện còn Infinity$\n⏰ ${time}`,
-            attachment: await i(link),
-          },
-          event.threadID
-        )
-      }
-
-      case '--': {
-        if (permssion < 2) return api.sendMessage('Bạn không đủ quyền', event.threadID)
-        await Currencies.decreaseMoney(targetID, parseInt(money, 10))
-        return api.sendMessage(
-          {
-            body: `💸 Money của ${name} bị reset\n💸 Hiện còn 0$\n⏰ ${time}`,
-            attachment: await i(link),
-          },
-          event.threadID
-        )
-      }
-
-      case '+-': {
-        if (permssion < 2) return api.sendMessage('Bạn không đủ quyền', event.threadID)
-        await Currencies.decreaseMoney(targetID, parseInt(money, 10))
-        await Currencies.increaseMoney(targetID, parseInt(mon, 10))
-        return api.sendMessage(
-          {
-            body: `💸 Money của ${name} được thay đổi thành ${mon}$\n💸 Money hiện tại ${mon}$\n⏰ ${time}`,
-            attachment: await i(link),
-          },
-          event.threadID
-        )
-      }
-
-      case '^': {
-        if (permssion < 2) return api.sendMessage('Bạn không đủ quyền', event.threadID)
-        await Currencies.increaseMoney(targetID, parseInt(-money + money ** mon, 10))
-        return api.sendMessage(
-          {
-            body: `💸 Money của ${name} được lũy thừa lên ${mon} lần\n💸 Money hiện tại ${money ** mon}$\n⏰ ${time}`,
-            attachment: await i(link),
-          },
-          event.threadID
-        )
-      }
-
-      case '√': {
-        if (permssion < 2) return api.sendMessage('Bạn không đủ quyền', event.threadID)
-        await Currencies.increaseMoney(targetID, parseInt(-money + money ** (1 / args[1]), 10))
-        return api.sendMessage(
-          {
-            body: `💸 Money của ${name} được căn bậc ${args[1]}\n💸 Hiện còn ${money ** (1 / args[1])}$\n⏰ ${time}`,
-            attachment: await i(link),
-          },
-          event.threadID
-        )
-      }
-
-      case '+%': {
-        if (permssion < 2) return api.sendMessage('Bạn không đủ quyền', event.threadID)
-        await Currencies.increaseMoney(targetID, parseInt(money / (100 / args[1]), 10))
-        return api.sendMessage(
-          {
-            body: `💸 Money của ${name} được cộng thêm ${args[1]}%\n💸 Hiện còn ${money + money / (100 / args[1])}$\n⏰ ${time}`,
-            attachment: await i(link),
-          },
-          event.threadID
-        )
-      }
-
-      case '-%': {
-        if (permssion < 2) return api.sendMessage('Bạn không đủ quyền', event.threadID)
-        await Currencies.increaseMoney(targetID, parseInt(-(money / (100 / args[1])), 10))
-        return api.sendMessage(
-          {
-            body: `💸 Money của ${name} bị trừ đi ${args[1]}%\n💸 Hiện còn ${money - money / (100 / args[1])}$\n⏰ ${time}`,
-            attachment: await i(link),
-          },
-          event.threadID
-        )
-      }
-
-      case 'pay': {
-        const money2 = (await Currencies.getData(event.senderID)).money
-        const bet = args[1] === 'all' ? money2 : args[1]
-        if (money < 1)
-          return api.sendMessage(
-            {
-              body: 'Bạn có ít hơn 1$ hoặc bạn số tiền chuyển lớn hơn số dư của bạn',
-              attachment: await i(link),
-            },
-            event.threadID
-          )
-        await Currencies.increaseMoney(event.senderID, parseInt(-bet, 10))
-        await Currencies.increaseMoney(targetID, parseInt(bet, 10))
-        return api.sendMessage(`Đã chuyển cho ${name} ${bet}$`, event.threadID)
-      }
+    // 1. Trường hợp chỉ xem tiền
+    if (!args[0]) {
+      const msg =
+        currentMoney === Infinity
+          ? `${name} có vô hạn tiền`
+          : `${name} hiện đang có ${currentMoney}$`
+      return api.sendMessage(msg, threadID)
     }
+
+    // 2. Xử lý lệnh 'pay' (Người dùng thường)
+    if (args[0] === 'pay') {
+      const senderData = await Currencies.getData(senderID)
+      const bet = args[1] === 'all' ? senderData.money : parseInt(args[1], 10)
+
+      if (Number.isNaN(bet) || bet <= 0 || senderData.money < bet) {
+        return api.sendMessage('Số tiền chuyển không hợp lệ hoặc bạn không đủ số dư!', threadID)
+      }
+
+      await Currencies.decreaseMoney(senderID, bet)
+      await Currencies.increaseMoney(targetID, bet)
+      return api.sendMessage(`✅ Đã chuyển cho ${name} ${bet}$`, threadID)
+    }
+
+    // 3. Các lệnh Admin (Quyền hạn >= 2)
+    if (permssion < 2)
+      return api.sendMessage('⚠️ Bạn không đủ quyền hạn để thực thi lệnh này.', threadID)
+
+    const val = parseFloat(args[1])
+    let newMoney = currentMoney
+    let actionText = ''
+
+    switch (args[0]) {
+      case '+':
+        newMoney += val
+        actionText = `được cộng thêm ${val}$`
+        break
+      case '-':
+        newMoney -= val
+        actionText = `bị trừ đi ${val}$`
+        break
+      case '*':
+        newMoney *= val
+        actionText = `được nhân lên ${val} lần`
+        break
+      case '/':
+        newMoney /= val
+        actionText = `bị chia đi ${val} lần`
+        break
+      case '++':
+        newMoney = Infinity
+        actionText = `được thay đổi thành vô hạn`
+        break
+      case '--':
+        newMoney = 0
+        actionText = `bị reset về 0`
+        break
+      case '+-':
+        newMoney = val
+        actionText = `được thay đổi thành ${val}$`
+        break
+      case '^':
+        newMoney = currentMoney ** val
+        actionText = `được lũy thừa bậc ${val}`
+        break
+      case '√':
+        newMoney = currentMoney ** (1 / val)
+        actionText = `được căn bậc ${val}`
+        break
+      case '+%': {
+        const addP = (currentMoney * val) / 100
+        newMoney += addP
+        actionText = `được cộng thêm ${val}% (${addP}$)`
+        break
+      }
+      case '-%': {
+        const subP = (currentMoney * val) / 100
+        newMoney -= subP
+        actionText = `bị trừ đi ${val}% (${subP}$)`
+        break
+      }
+      default:
+        return api.sendMessage('❌ Lệnh không hợp lệ!', threadID)
+    }
+
+    // Cập nhật Database (Dùng set cho chính xác tuyệt đối sau khi tính toán)
+    await Currencies.setData(targetID, { money: parseInt(newMoney, 10) || 0 })
+
+    return api.sendMessage(
+      {
+        body: `💸 Money của ${name} ${actionText}\n💸 Số dư mới: ${newMoney}$\n⏰ Thời gian: ${time}`,
+        attachment: await i(link),
+      },
+      threadID
+    )
   } catch (e) {
-    console.log(e)
+    console.error(e)
+    return api.sendMessage('🔥 Đã xảy ra lỗi hệ thống khi xử lý lệnh.', threadID)
   }
-  if (money === Infinity) return api.sendMessage(`${name} có vô hạn tiền`, event.threadID)
-  if (money === null) return api.sendMessage(`${name} có 0$`, event.threadID)
-  if (!args[0] || !args[1]) return api.sendMessage(`${name} có ${money}$`, event.threadID)
 }
