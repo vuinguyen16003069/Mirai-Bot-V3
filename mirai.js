@@ -151,15 +151,15 @@ function onBot({ models }) {
       if (err) console.error('Lỗi khi dọn cache:', err)
     })
     ;(() => {
-      const loadModules = (path, collection, disabledList, type) => {
-        const items = readdirSync(path).filter(
+      const loadModules = (dirPath, collection, disabledList, type) => {
+        const items = readdirSync(dirPath).filter(
           (file) =>
             file.endsWith('.js') && !file.includes('example') && !disabledList.includes(file)
         )
         let loadedCount = 0
         for (const file of items) {
           try {
-            const item = require(path.join(path, file))
+            const item = require(path.join(dirPath, file))
             const { config, run, onLoad, handleEvent } = item
             if (!config || !run || (type === 'commands' && !config.commandCategory)) {
               throw new Error(
@@ -190,7 +190,7 @@ function onBot({ models }) {
         }
         if (loadedCount === 0) {
           console.log(
-            `Không tìm thấy ${type === 'commands' ? 'lệnh' : 'sự kiện'} nào trong thư mục ${path}`
+            `Không tìm thấy ${type === 'commands' ? 'lệnh' : 'sự kiện'} nào trong thư mục ${dirPath}`
           )
         }
         return loadedCount
