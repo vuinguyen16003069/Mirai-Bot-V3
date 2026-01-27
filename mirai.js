@@ -4,6 +4,7 @@ const { execSync } = require('child_process');
 const login = require('@dongdev/fca-unofficial')
 const fs = require('fs-extra');
 const moment = require('moment-timezone');
+const logger = require('./utils/log');
 if (!fs.existsSync('./utils/data')) {
   fs.mkdirSync('./utils/data', { recursive: true });
 }
