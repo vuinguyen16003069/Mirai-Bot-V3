@@ -14,7 +14,7 @@
     
 ## 📝 **introduce**
 <p>
-<strong>Mirai Bot V3 Unofficial</strong> Là một dự án được DongDev update và tiếp tục phát triển từ project Mirai-V2 của Catalizcs and SpermLord xây dựng. Được mod lại bởi <strong>Vuinguyen</strong> với các cải tiến về bảo mật, hiệu suất và bảo trì code.
+<strong>Mirai Bot V3 Unofficial</strong> Là một dự án được DongDev update và tiếp tục phát triển từ project Mirai-V2 của Catalizcs and SpermLord xây dựng. Được mod lại bởi <strong><a href="https://www.facebook.com/vui.nguyen.quang.2025">Vuinguyen</a></strong> (<a href="https://github.com/vuinguyen16003069">GitHub</a>) với các cải tiến về bảo mật, hiệu suất và bảo trì code.
 </p>
 
 ### 🔄 **Các thay đổi chính (Mod by Vuinguyen)**
