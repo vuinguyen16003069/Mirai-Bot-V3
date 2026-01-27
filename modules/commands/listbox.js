@@ -114,8 +114,6 @@ module.exports.handleReply = async ({ api, event, Threads, handleReply }) => {
   }
 }
 module.exports.run = async function ({ api, event, args }) {
-  if (!global.config.ADMINBOT.includes(event.senderID))
-    return api.sendMessage('Bạn không có quyền sử dụng lệnh này!', event.threadID, event.messageID)
   let inbox, i
   switch (args[0]) {
     case 'all':
