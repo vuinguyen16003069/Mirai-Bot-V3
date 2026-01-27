@@ -28,28 +28,6 @@ const formatMoney = (amount) => {
   }
 };
 
-let data = {};
-const save = async (_d) => {
-  try {
-    // fs-extra provides writeJson to write object as JSON
-    await fs.writeJson(path_file, data, { spaces: 2 });
-  } catch (err) {
-    console.error('Lỗi khi lưu status-hack.json:', err?.message || err);
-  }
-};
-// Khởi tạo file cấu hình bất đồng bộ, dùng IIFE để tránh top-level await
-(async () => {
-  try {
-    if (await fs.pathExists(path_file)) {
-      data = await fs.readJson(path_file);
-    } else {
-      await save();
-    }
-  } catch (err) {
-    console.error('Lỗi khi khởi tạo dữ liệu status-hack.json:', err?.message || err);
-  }
-})();
-
 let d = global.data_command_ban_tai_xiu;
 if (!d) {
   d = global.data_command_ban_tai_xiu = {};
@@ -83,9 +61,6 @@ const dicePhotos = [
   "https://imgur.com/JVuky8r.jpg"
 ];
 
-const admin_tx = [global.config.ADMINBOT[0]];
-const _id_box = global.config.BOXNOTI;
-
 async function mergeImages(imagePaths, outputPath) {
   try {
     const images = await Promise.all(imagePaths.map((path) => loadImage(path)));
@@ -111,21 +86,6 @@ async function mergeImages(imagePaths, outputPath) {
 exports.run = (o) => {
   const { args, senderID: sid, threadID: tid, messageID: mid } = o.event;
   const send = (msg, callback) => o.api.sendMessage(msg, tid, undefined, callback);
-  if (/^hack$/.test(o.args[0]) && admin_tx.includes(sid)) {
-    return o.api.getThreadList(100, null, ['INBOX'], (_err, res) => {
-      const thread_list = res.filter(($) => $.isSubscribed && $.isGroup);
-      const message = `${thread_list.map(($, i) => `${i + 1}. ${data[$.threadID] === true ? 'on' : 'off'} - ${$.name}`).join('\n')}\n\n-> Reply (phản hồi) theo stt để on/off`;
-      send(message, (_err2, res2) => {
-        const replyObj = Object.assign({}, res2, {
-          name: exports.config.name,
-          type: 'status.hack',
-          o,
-          thread_list,
-        });
-        global.client.handleReply.push(replyObj);
-      });
-    });
-  }
   if (/^(create|c|-c)$/.test(o.args[0])) {
     if (tid in d) {
       return send('❎ Nhóm đã tạo bàn tài xỉu rồi!');
@@ -338,37 +298,6 @@ exports.handleEvent = async (o) => {
       console.error('Lỗi hợp nhất hình ảnh:', error);
       await send(`❎ Lỗi khi xử lý hình ảnh xúc xắc: ${error.message}`);
     }
-    if (data[tid] === true) {
-      for (const id of admin_tx) {
-        await send(
-          `🎲 Xúc xắc: ${dices.join('.')} - ${sum} điểm (${select_values[winner]})\n🎰 Tỉ lệ ăn 1:${rate}\n🏆 Tổng Kết:\n👑 Những người thắng:\n${winner_players
-            .map(($, i) => {
-              const crease_money = $.bet_money * BigInt(rate);
-              return `${i + 1}. ${global.data.userName.get($.id)} chọn (${select_values[$.select]})\n⬆️ ${formatMoney(crease_money)}`;
-            })
-            .join(
-              '\n',
-            )}\n\n💸 Những người thua:\n${lose_players.map(($, i) => `${i + 1}. ${global.data.userName.get($.id)} chọn (${select_values[$.select]})\n⬇️ ${formatMoney($.bet_money)}`).join('\n')}\n\n👤 Chủ bàn: ${global.data.userName.get(
-            d[tid].author,
-          )}\n🏘️ Nhóm: ${global.data.threadInfo.get(tid).threadName}`,
-          id,
-        ).then((res) => {
-          setTimeout(() => send('Đã xổ ☑️', res.messageID, id), 1000);
-          const replyObj = Object.assign({}, res, {
-            name: exports.config.name,
-            type: 'change.result.dices',
-            o,
-          });
-          replyObj.cb = (new_result) => {
-            dices[0] = new_result[0];
-            dices[1] = new_result[1];
-            dices[2] = new_result[2];
-            return new_result;
-          };
-          global.client.handleReply.push(replyObj);
-        });
-      }
-    }
     clearTimeout(d[tid].set_timeout);
     delete d[tid];
   }
@@ -402,22 +331,6 @@ exports.handleReply = async (o) => {
     o.api.sendMessage(msg, tid, messageId, cb);
   };
   if (sid === o.api.getCurrentUserID()) {
-    return;
-  }
-  if (_.type === 'status.hack' && admin_tx.includes(sid)) {
-    const list = args
-      .filter(($) => Number.isFinite($) && !!_.thread_list[$ - 1])
-      .map(($) => {
-        const idx = Number($) - 1;
-        const thread = _.thread_list[idx];
-        const toggled = (data[thread.threadID] = !data[thread.threadID]);
-        return `${$}. ${thread.name} - ${toggled ? 'on' : 'off'}`;
-      })
-      .join('\n');
-    try {
-      await send(list).catch(() => {});
-    } catch (e) {}
-    await save();
     return;
   }
   if (_.type === 'change.result.dices') {

@@ -1,4 +1,4 @@
-const { readdirSync, readFileSync, writeFileSync, existsSync, unlinkSync, rm } = require("fs-extra");
+const { readdirSync, readFileSync, writeFileSync, existsSync, unlinkSync, rm, emptyDir } = require("fs-extra");
 const { join, resolve } = require("path");
 const { execSync } = require('child_process');
 const login = require('@dongdev/fca-unofficial')
@@ -77,12 +77,9 @@ function onBot({ models }) {
           "|_|  |_|___|_| \\_\\/_/   \\_\\___|    |____/ \\___/ |_|      \\_/  |____/ \n"));
         // Tự động dọn cache
         const cacheDir = join(global.client.mainPath, 'modules', 'commands', 'cache');
-        if (existsSync(cacheDir)) {
-          rm(cacheDir, { recursive: true, force: true }, (err) => {
-            if (err) console.error('Lỗi khi dọn cache:', err);
-            else console.log('Đã dọn cache thành công.');
-          });
-        }
+        emptyDir(cacheDir, (err) => {
+          if (err) console.error('Lỗi khi dọn cache:', err);
+        });
         (function () {
             const loadModules = (path, collection, disabledList, type) => {
               const items = readdirSync(path).filter(file => file.endsWith('.js') && !file.includes('example') && !disabledList.includes(file));
