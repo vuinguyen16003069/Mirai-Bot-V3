@@ -1,6 +1,101 @@
 module.exports = ({ api, models }) => {
   const fs = require('node:fs')
   const path = require('path')
+  const axios = require('axios')
+  const { DateTime } = require('luxon')
+  const { co } = require('../utils/log')
+
+  const userCache = new Map()
+  const threadCache = new Map()
+  const CACHE_TTL = 10 * 60 * 1000 // 10 phút
+  const thinhCache = { data: null, timestamp: 0 }
+  const THINH_CACHE_TTL = 60 * 60 * 1000 // 1 giờ
+
+  async function getRandomThinh() {
+    const now = Date.now()
+    if (thinhCache.data && now - thinhCache.timestamp < THINH_CACHE_TTL) {
+      const keys = Object.keys(thinhCache.data)
+      const randomKey = keys[Math.floor(Math.random() * keys.length)]
+      return thinhCache.data[randomKey]
+    }
+    try {
+      const response = await axios.get(
+        'https://raw.githubusercontent.com/Sang070801/api/main/thinh1.json'
+      )
+      const fullData = response.data
+      const data = fullData?.data
+      if (typeof data === 'object' && !Array.isArray(data)) {
+        thinhCache.data = data
+        thinhCache.timestamp = now
+        const keys = Object.keys(data)
+        const randomKey = keys[Math.floor(Math.random() * keys.length)]
+        return data[randomKey]
+      }
+    } catch (err) {
+      console.error('Lỗi lấy thính từ API:', err)
+    }
+    return 'Không có câu thính nào.'
+  }
+
+  // Hàm lấy tên user với cache
+  async function getUserName(_api, Users, senderID) {
+    const now = Date.now()
+    if (userCache.has(senderID)) {
+      const { name, timestamp } = userCache.get(senderID)
+      if (now - timestamp < CACHE_TTL) {
+        return name
+      }
+    }
+    try {
+      const name = (await Users.getNameUser(senderID)) || 'Unknown User'
+      userCache.set(senderID, { name, timestamp: now })
+      return name
+    } catch (err) {
+      console.error('Lỗi lấy tên user:', err)
+      return 'Unknown User'
+    }
+  }
+
+  // Hàm lấy tên thread với cache
+  async function getThreadName(api, Threads, threadID) {
+    const now = Date.now()
+    if (threadCache.has(threadID)) {
+      const { name, timestamp } = threadCache.get(threadID)
+      if (now - timestamp < CACHE_TTL) {
+        return name
+      }
+    }
+    try {
+      let threadInfo = await Threads.getData(threadID)
+      if (!threadInfo || !threadInfo.threadInfo || !threadInfo.threadInfo.name) {
+        threadInfo = await api.getThreadInfo(threadID)
+      }
+      const name = threadInfo?.threadInfo?.name || `Thread ${threadID}`
+      threadCache.set(threadID, { name, timestamp: now })
+      return name
+    } catch (err) {
+      console.error('Lỗi lấy tên thread:', err)
+      return `Thread ${threadID}`
+    }
+  }
+
+  function padRight(str, len) {
+    const s = String(str)
+    if (s.length >= len) return s
+    return s + ' '.repeat(len - s.length)
+  }
+
+  function makeBorder(title, width) {
+    const line = '─'.repeat(Math.max(0, width - 2))
+    const top = `╭${line}╮`
+    const bottom = `╰${line}╯`
+    const titleLine = `│ ${title}${' '.repeat(Math.max(0, width - title.length - 3))}│`
+    return {
+      top: co(top),
+      titleLine: co(titleLine),
+      bottom: co(bottom),
+    }
+  }
   const Users = require('./controllers/users')({
     models,
     api,
@@ -155,6 +250,51 @@ module.exports = ({ api, models }) => {
             event,
           }),
         ])
+        // Log message to console
+        if (global.config?.console !== false) {
+          const botID = api.getCurrentUserID()
+          if (event.senderID !== botID) {
+            try {
+              const [nameUser, nameBox] = await Promise.all([
+                getUserName(api, Users, event.senderID),
+                getThreadName(api, Threads, event.threadID),
+              ])
+
+              let msg = event.body?.trim() ? event.body.trim() : ''
+              if (!msg) {
+                if (event.attachments?.length) msg = `📎 ${event.attachments.length} attachment(s)`
+                else msg = '📎 Ảnh, video hoặc ký tự đặc biệt'
+              }
+
+              const time = DateTime.now()
+                .setZone('Asia/Ho_Chi_Minh')
+                .toFormat('dd/MM/yyyy HH:mm:ss')
+              const width = 68 // box width
+              const title = ` ${nameBox} `
+              const { top, bottom } = makeBorder(title, width);
+
+              const labelWidth = 14
+              const lines = []
+              lines.push(top)
+              lines.push(co(`│ ${padRight('[📌] Tên nhóm:', labelWidth)} ${nameBox}`))
+              lines.push(co(`│ ${padRight('[👥] ID nhóm:', labelWidth)} ${event.threadID}`))
+              lines.push(co(`│ ${padRight('[💢] Người dùng:', labelWidth)} ${nameUser}`))
+              lines.push(co(`│ ${padRight('[🆔] ID người dùng:', labelWidth)} ${event.senderID}`))
+              lines.push(co(`│ ${padRight('[💬] Nội dung:', labelWidth)} ${msg}`))
+              lines.push(co(`│ ${padRight('[🕐] Thời gian:', labelWidth)} ${time}`))
+              lines.push(bottom)
+
+              const thinh = await getRandomThinh()
+              lines.push('')
+              lines.push(co(`${thinh}`))
+              lines.push('')
+
+              console.log(lines.join('\n'))
+            } catch (error) {
+              console.error('Lỗi log message:', error)
+            }
+          }
+        }
         break
       case 'event':
         await Promise.all([
