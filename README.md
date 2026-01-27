@@ -14,8 +14,17 @@
     
 ## 📝 **introduce**
 <p>
-<strong>Mirai Bot V3 Unofficial</strong> Là một dự án được DongDev update và tiếp tục phát triển từ project Mirai-V2 của Catalizcs and SpermLord xây dựng.
+<strong>Mirai Bot V3 Unofficial</strong> Là một dự án được DongDev update và tiếp tục phát triển từ project Mirai-V2 của Catalizcs and SpermLord xây dựng. Được mod lại bởi <strong>Vuinguyen</strong> với các cải tiến về bảo mật, hiệu suất và bảo trì code.
 </p>
+
+### 🔄 **Các thay đổi chính (Mod by Vuinguyen)**
+- **Bảo mật**: Chuyển từ `cookie.txt` sang `appstate.json` để login an toàn hơn.
+- **Cập nhật dependencies**: Downgrade `gradient-string` xuống v2 và `chalk` xuống v4 để tương thích.
+- **Tối ưu hình ảnh**: Sử dụng direct Imgur links cho hình ảnh xúc xắc trong các lệnh `taixiu`, `tx`, và `baucua` để giảm phụ thuộc local.
+- **Auto clean cache**: Tự động dọn dẹp thư mục cache khi khởi động bot, giữ nguyên thư mục.
+- **Dọn dẹp code**: Loại bỏ logic `status-hack.json` không cần thiết khỏi lệnh `tx.js`.
+- **Cấu hình Biome**: Thêm công cụ linting và formatting Biome để duy trì code chất lượng.
+- **Git security**: Loại bỏ `fca-config.json` và `database.sqlite` khỏi Git tracking để bảo mật.
 
 ## 📜 **Installation**
 
