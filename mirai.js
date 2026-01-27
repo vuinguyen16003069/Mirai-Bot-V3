@@ -72,6 +72,24 @@ global.getText = (...args) => {
   return text
 }
 function onBot({ models }) {
+  // Chuyển cookies sang appstate nếu có file cookies.json
+  if (fs.existsSync('./cookies.json')) {
+    console.log('Đang chuyển cookies sang appstate...')
+    login(
+      { cookies: JSON.parse(fs.readFileSync('./cookies.json', 'utf8')) },
+      (convertError, api) => {
+        if (convertError) {
+          console.log('Lỗi chuyển đổi cookies:', convertError)
+          return
+        }
+        fs.writeFileSync('./appstate.json', JSON.stringify(api.getAppState(), null, 2))
+        console.log('✅ Đã chuyển cookies sang appstate thành công!')
+        api.logout()
+      }
+    )
+    return // Dừng để không login lại ngay
+  }
+
   login(
     { appState: JSON.parse(fs.readFileSync('./appstate.json', 'utf8')) },
     async (loginError, api) => {
