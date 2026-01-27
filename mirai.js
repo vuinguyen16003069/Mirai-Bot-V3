@@ -107,14 +107,16 @@ function onBot({ models }) {
   // Kiểm tra và chuyển đổi appstate.json nếu cần
   let appState
   try {
-    const appStateData = JSON.parse(fs.readFileSync('./appstate.json', 'utf8'))
-    if (typeof appStateData === 'string') {
+    const appStateContent = fs.readFileSync('./appstate.json', 'utf8').trim()
+    if (appStateContent.startsWith('[') || appStateContent.startsWith('{')) {
+      // Là JSON
+      appState = JSON.parse(appStateContent)
+    } else {
+      // Là cookie string
       console.log('Đang chuyển cookies string trong appstate.json sang định dạng JSON...')
-      appState = parseCookiesToAppState(appStateData)
+      appState = parseCookiesToAppState(appStateContent)
       fs.writeFileSync('./appstate.json', JSON.stringify(appState, null, 2))
       console.log('✅ Đã chuyển đổi thành công!')
-    } else {
-      appState = appStateData
     }
   } catch (error) {
     console.log('Lỗi đọc appstate.json:', error.message)
