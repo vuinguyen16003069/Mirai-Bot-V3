@@ -16,6 +16,13 @@ module.exports = function({
     models
   });
   const logger = require("../utils/log.js");
+  require('./handle/handleSchedule.js')({
+    api,
+    Threads,
+    Users,
+    models
+  });
+  logger(`${api.getCurrentUserID()} - [ ${global.config.PREFIX} ] • ${(!global.config.BOTNAME) ? "This bot was made by CatalizCS and SpermLord" : global.config.BOTNAME}`, "[ BOT INFO ] >");
   (async () => {
     try {
       logger.loader("Tiến hành tải dữ liệu người dùng và nhóm");
@@ -70,13 +77,6 @@ module.exports = function({
       logger(`Tải môi trường thất bại: ${error}`, 'error');
     }
   })();
-  require('./handle/handleSchedule.js')({
-    api,
-    Threads,
-    Users,
-    models
-  });
-  logger(`${api.getCurrentUserID()} - [ ${global.config.PREFIX} ] • ${(!global.config.BOTNAME) ? "This bot was made by CatalizCS and SpermLord" : global.config.BOTNAME}`, "[ BOT INFO ] >");
   const handlers = fs.readdirSync(path.join(__dirname, './handle')).reduce((acc, file) => {
     return {
       ...acc,
