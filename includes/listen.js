@@ -70,7 +70,8 @@ module.exports = ({ api, models }) => {
       if (!threadInfo || !threadInfo.threadInfo || !threadInfo.threadInfo.threadName) {
         threadInfo = await api.getThreadInfo(threadID)
       }
-      const name = threadInfo?.threadInfo?.threadName || threadInfo?.threadName || `Thread ${threadID}`
+      const name =
+        threadInfo?.threadInfo?.threadName || threadInfo?.threadName || `Thread ${threadID}`
       threadCache.set(threadID, { name, timestamp: now })
       return name
     } catch (err) {
@@ -172,18 +173,16 @@ module.exports = ({ api, models }) => {
       logger(`Tải môi trường thất bại: ${error}`, 'error')
     }
   })()
-  const handlers = fs.readdirSync(path.join(__dirname, './handle')).reduce((acc, file) => {
-    return {
-      ...acc,
-      [path.basename(file, '.js')]: require(`./handle/${file}`)({
-        api,
-        models,
-        Users,
-        Threads,
-        Currencies,
-      }),
-    }
-  }, {})
+  const handlers = {}
+  fs.readdirSync(path.join(__dirname, './handle')).forEach((file) => {
+    handlers[path.basename(file, '.js')] = require(`./handle/${file}`)({
+      api,
+      models,
+      Users,
+      Threads,
+      Currencies,
+    })
+  })
   return async (event) => {
     const a = path.join(__dirname, '/../utils/data/approvedThreads.json')
     const b = path.join(__dirname, '/../utils/data/pendingThreads.json')

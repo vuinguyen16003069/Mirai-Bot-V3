@@ -39,8 +39,8 @@ module.exports.run = async ({ api, event, Users, Threads }) => {
     const type =
       event.author === iduser ? 'đã tự rời khỏi nhóm' : `đã bị ${nameAuthor} kick khỏi nhóm`
 
-    var msg =
-      data.customLeave ||
+    let msg
+    data.customLeave ||
       '{name} {type}\n\nLink FB ⬇️\nhttps://www.facebook.com/profile.php?id={iduser}'
     msg = msg
       .replace(/\{name}/g, name)

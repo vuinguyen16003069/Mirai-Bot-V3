@@ -36,7 +36,7 @@ module.exports = {
       }
     }
   },
-  handleEvent: async ({ api, event, args }) => {
+  handleEvent: async ({ api, event }) => {
     if (!event.body) return
 
     const bodyLower = event.body.toLowerCase()

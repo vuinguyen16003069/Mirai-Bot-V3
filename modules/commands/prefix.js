@@ -12,7 +12,7 @@ module.exports.config = {
   cooldowns: 0,
 }
 
-module.exports.handleEvent = async ({ api, event, client }) => {
+module.exports.handleEvent = async ({ api, event }) => {
   const { threadID, body } = event
   if (!body) return
 

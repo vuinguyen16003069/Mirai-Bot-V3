@@ -12,13 +12,15 @@ module.exports.config = {
 module.exports.run = async ({ api, event, args }) => {
   try {
     const botID = api.getCurrentUserID()
-    var listAFK, listUserID
-    global.moduleData.afk?.afkList
-      ? (listAFK = Object.keys(global.moduleData.afk.afkList || []))
-      : (listAFK = [])
+    let listAFK, listUserID
+    if (global.moduleData.afk?.afkList) {
+      listAFK = Object.keys(global.moduleData.afk.afkList || [])
+    } else {
+      listAFK = []
+    }
     listUserID = event.participantIDs.filter((ID) => ID !== botID && ID !== event.senderID)
     listUserID = listUserID.filter((item) => !listAFK.includes(item))
-    var body = args.length !== 0 ? args.join(' ') : 'Bạn đã bị quản trị viên xóa ra khỏi nhóm.',
+    let body = args.length !== 0 ? args.join(' ') : 'Bạn đã bị quản trị viên xóa ra khỏi nhóm.',
       mentions = [],
       index = 0
     for (const idUser of listUserID) {

@@ -13,11 +13,12 @@ this.config = {
 }
 
 this.run = async function ({ api, event, args }) {
-  const { threadID: tid, messageID: mid, senderID: sid } = event
+  const { threadID: tid, messageID: mid } = event
   var type = !args[0] ? '' : args[0].toLowerCase()
   var msg = '',
     array = [],
     i = 0
+  let allCommandName
   const cmds = global.client.commands
   const TIDdata = global.data.threadData.get(tid) || {}
   const admin = global.config.ADMINBOT
@@ -39,7 +40,7 @@ this.run = async function ({ api, event, args }) {
     if (!array.find((n) => n === args[0].toLowerCase())) {
       const stringSimilarity = require('string-similarity')
       commandName = args.shift().toLowerCase() || ''
-      var allCommandName = []
+      allCommandName = []
       const commandValues = Object.keys(cmds)
       for (const cmd of commandValues) allCommandName.push(cmd)
       const checker = stringSimilarity.findBestMatch(commandName, allCommandName)

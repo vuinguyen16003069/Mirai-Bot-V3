@@ -18,7 +18,10 @@ this.handleEvent = async ({ api, event, args }) => {
   const stream = (url, ext = 'jpg') =>
     require('axios')
       .get(url, { responseType: 'stream' })
-      .then((res) => ((res.data.path = `tmp.${ext}`), res.data))
+      .then((res) => {
+        res.data.path = `tmp.${ext}`
+        return res.data
+      })
       .catch((_e) => null)
   const send = (msg) => api.sendMessage(msg, event.threadID, event.messageID)
   const head = (app) => `[ AUTODOWN - ${app} ]\n────────────────`

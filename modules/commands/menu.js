@@ -18,11 +18,11 @@ module.exports.config = {
 
 const { autoUnsend = this.config.envConfig.autoUnsend } =
   global.config === undefined ? {} : global.config.menu === undefined ? {} : global.config.menu
-const { compareTwoStrings, findBestMatch } = require('string-similarity')
-const { readFileSync, writeFileSync, existsSync } = require('fs-extra')
+const { findBestMatch } = require('string-similarity')
 
 module.exports.run = async function ({ api, event, args }) {
   const axios = require('axios')
+  let txt, count
   const moment = require('moment-timezone')
   const { sendMessage: send, unsendMessage: un } = api
   const { threadID: tid, messageID: mid, senderID: sid } = event
@@ -39,8 +39,8 @@ module.exports.run = async function ({ api, event, args }) {
     } else {
       if (args[0] === 'all') {
         const data = cmds.values()
-        var txt = '╭─────────────⭓\n',
-          count = 0
+        txt = '╭─────────────⭓\n'
+        count = 0
         for (const cmd of data)
           txt += `│ ${++count}. ${cmd.config.name} | ${cmd.config.description}\n`
         txt += `\n├────────⭔\n│ ⏳ Tự động gỡ tin nhắn sau: ${autoUnsend.timeOut}s\n╰─────────────⭓`
@@ -64,8 +64,8 @@ module.exports.run = async function ({ api, event, args }) {
     }
   } else {
     const data = commandsGroup()
-    var txt = '╭─────────────⭓\n',
-      count = 0
+    txt = '╭─────────────⭓\n'
+    count = 0
     for (const { commandCategory, commandsName } of data)
       txt += `│ ${++count}. ${commandCategory} || có ${commandsName.length} lệnh\n`
     txt += `├────────⭔\n│ 📝 Tổng có: ${global.client.commands.size} lệnh\n│ ⏰ Time: ${time}\n│ 🔎 Reply từ 1 đến ${data.length} để chọn\n│ ⏳ Tự động gỡ tin nhắn sau: ${autoUnsend.timeOut}s\n╰─────────────⭓`
@@ -101,7 +101,7 @@ module.exports.handleReply = async function ({ handleReply: $, api, event }) {
 
   switch ($.case) {
     case 'infoGr': {
-      var data = $.data[+args[0] - 1]
+      const data = $.data[+args[0] - 1]
       if (data === undefined) {
         const txt = `❎ "${args[0]}" không nằm trong số thứ tự menu`
         const msg = txt
@@ -109,7 +109,7 @@ module.exports.handleReply = async function ({ handleReply: $, api, event }) {
       }
 
       un($.messageID)
-      var txt = `╭─────────────⭓\n│ ${data.commandCategory}\n├─────⭔\n`,
+      let txt = `╭─────────────⭓\n│ ${data.commandCategory}\n├─────⭔\n`,
         count = 0
       for (const name of data.commandsName) {
         const cmdInfo = global.client.commands.get(name).config
@@ -128,7 +128,7 @@ module.exports.handleReply = async function ({ handleReply: $, api, event }) {
       })
     }
     case 'infoCmds': {
-      var data = global.client.commands.get($.data[+args[0] - 1])
+      const data = global.client.commands.get($.data[+args[0] - 1])
       if (typeof data !== 'object') {
         const txt = `⚠️ "${args[0]}" không nằm trong số thứ tự menu`
         const msg = txt

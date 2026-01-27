@@ -8,7 +8,7 @@ module.exports.config = {
   usages: '[test]',
   cooldowns: 5,
 }
-module.exports.run = async function ({ event, api, Currencies, args, Users, Threads }) {
+module.exports.run = async function ({ event, api, args, Threads }) {
   if (!args[0]) return api.sendMessage('⚠️ Lựa chọn qtv add [tag/reply]', event.threadID)
   const dataThread = (await Threads.getData(event.threadID)).threadInfo
   if (
@@ -20,10 +20,11 @@ module.exports.run = async function ({ event, api, Currencies, args, Users, Thre
       event.threadID,
       event.messageID
     )
+  let uid, uid1
   if (args[0] === 'add') {
     if (event.type === 'message_reply') {
-      var uid1 = event.senderID
-      var uid = event.messageReply.senderID
+      uid1 = event.senderID
+      uid = event.messageReply.senderID
       api.sendMessage('📌 Thả cảm xúc tin nhắn này để xác nhận', event.threadID, (_error, info) => {
         global.client.handleReaction.push({
           name: this.config.name,
@@ -35,8 +36,8 @@ module.exports.run = async function ({ event, api, Currencies, args, Users, Thre
         event.messageID
       })
     } else if (args.join().indexOf('@') !== -1) {
-      var uid = Object.keys(event.mentions)[0]
-      var uid1 = event.senderID
+      uid = Object.keys(event.mentions)[0]
+      uid1 = event.senderID
       api.sendMessage('📌 Thả cảm xúc tin nhắn này để xác nhận', event.threadID, (_error, info) => {
         global.client.handleReaction.push({
           name: this.config.name,
@@ -48,7 +49,7 @@ module.exports.run = async function ({ event, api, Currencies, args, Users, Thre
         event.messageID
       })
     } else {
-      var uid1 = event.senderID
+      uid1 = event.senderID
       api.sendMessage('📌 Thả cảm xúc tin nhắn này để xác nhận', event.threadID, (_error, info) => {
         global.client.handleReaction.push({
           name: this.config.name,
@@ -63,8 +64,8 @@ module.exports.run = async function ({ event, api, Currencies, args, Users, Thre
   }
   if (args[0] === 'remove') {
     if (event.type === 'message_reply') {
-      var uid1 = event.senderID
-      var uid = event.messageReply.senderID
+      uid1 = event.senderID
+      uid = event.messageReply.senderID
       api.sendMessage('📌 Thả cảm xúc tin nhắn này để xác nhận', event.threadID, (_error, info) => {
         global.client.handleReaction.push({
           name: this.config.name,
@@ -76,8 +77,8 @@ module.exports.run = async function ({ event, api, Currencies, args, Users, Thre
         event.messageID
       })
     } else if (args.join().indexOf('@') !== -1) {
-      var uid = Object.keys(event.mentions)[0]
-      var uid1 = event.senderID
+      uid = Object.keys(event.mentions)[0]
+      uid1 = event.senderID
       api.sendMessage('📌 Thả cảm xúc tin nhắn này để xác nhận', event.threadID, (_error, info) => {
         global.client.handleReaction.push({
           name: this.config.name,
@@ -91,11 +92,12 @@ module.exports.run = async function ({ event, api, Currencies, args, Users, Thre
     }
   }
 }
-module.exports.handleReaction = async ({ event, api, handleReaction, Currencies, Users }) => {
+module.exports.handleReaction = async ({ event, api, handleReaction, Users }) => {
   console.log(handleReaction)
   if (event.userID !== handleReaction.author) return
+  let name
   if (handleReaction.type === 'add') {
-    var name = (await Users.getData(handleReaction.userID)).name
+    name = (await Users.getData(handleReaction.userID)).name
     api.changeAdminStatus(event.threadID, handleReaction.userID, true, editAdminsCallback)
     function editAdminsCallback(err) {
       if (err)
@@ -108,7 +110,7 @@ module.exports.handleReaction = async ({ event, api, handleReaction, Currencies,
     }
   }
   if (handleReaction.type === 'remove') {
-    var name = (await Users.getData(handleReaction.userID)).name
+    name = (await Users.getData(handleReaction.userID)).name
     api.changeAdminStatus(event.threadID, handleReaction.userID, false, editAdminsCallback)
     function editAdminsCallback(err) {
       if (err)

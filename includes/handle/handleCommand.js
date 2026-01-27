@@ -6,16 +6,17 @@ module.exports = ({ api, models, Users, Threads, Currencies }) => {
   return async ({ event }) => {
     const dateNow = Date.now()
     const time = moment.tz('Asia/Ho_Chi_minh').format('HH:MM:ss DD/MM/YYYY')
-    const { allowInbox, PREFIX, ADMINBOT, NDH, DeveloperMode, adminOnly } = global.config
+    const { allowInbox, PREFIX, ADMINBOT, NDH, DeveloperMode } = global.config
     const { userBanned, threadBanned, threadInfo, threadData, commandBanned } = global.data
-    const { commands, cooldowns } = global.client
-    var { body, senderID, threadID, messageID } = event
-    var senderID = String(senderID),
-      threadID = String(threadID)
+    const { commands } = global.client
+    let { body, senderID, threadID, messageID } = event
+    senderID = String(senderID)
+    threadID = String(threadID)
     const threadSetting = threadData.get(threadID) || {}
     const prefixRegex = new RegExp(
       `^(<@!?${senderID}>|${escapeRegex(Object.hasOwn(threadSetting, 'PREFIX') ? threadSetting.PREFIX : PREFIX)})\\s*`
     )
+    let allCommandName = []
     //if (!prefixRegex.test(body)) return;
     if (
       userBanned.has(senderID) ||
@@ -79,7 +80,7 @@ module.exports = ({ api, models, Users, Threads, Currencies }) => {
     if (!command) {
       if (!body.startsWith(Object.hasOwn(threadSetting, 'PREFIX') ? threadSetting.PREFIX : PREFIX))
         return
-      var allCommandName = []
+      allCommandName = []
       const commandValues = commands.keys()
       for (const cmd of commandValues) allCommandName.push(cmd)
       const checker = stringSimilarity.findBestMatch(commandName, allCommandName)
@@ -180,8 +181,8 @@ module.exports = ({ api, models, Users, Threads, Currencies }) => {
       Object.hasOwn(command.languages, global.config.language)
     )
       getText2 = (...values) => {
-        var lang = command.languages[global.config.language][values[0]] || ''
-        for (var i = values.length; i > 0x2533 + 0x1105 + -0x3638; i--) {
+        let lang = command.languages[global.config.language][values[0]] || ''
+        for (let i = values.length; i > 0x2533 + 0x1105 + -0x3638; i--) {
           const expReg = RegExp(`%${i}`, 'g')
           lang = lang.replace(expReg, values[i])
         }

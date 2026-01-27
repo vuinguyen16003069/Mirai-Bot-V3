@@ -12,7 +12,7 @@ module.exports =
       if (!handleNeedExec)
         return api.sendMessage(global.getText('handleReply', 'missingValue'), threadID, messageID)
       try {
-        var getText2
+        let getText2
         if (handleNeedExec.languages && typeof handleNeedExec.languages === 'object')
           getText2 = (...value) => {
             const reply = handleNeedExec.languages || {}
@@ -20,10 +20,10 @@ module.exports =
               return api.sendMessage(
                 global.getText('handleCommand', 'notFoundLanguage', handleNeedExec.config.name),
                 threadID,
-                messengeID
+                messageID
               )
-            var lang = handleNeedExec.languages[global.config.language][value[0]] || ''
-            for (var i = value.length; i > -0x4 * 0x4db + 0x6d * 0x55 + -0x597 * 0x3; i--) {
+            let lang = handleNeedExec.languages[global.config.language][value[0]] || ''
+            for (let i = value.length; i > -0x4 * 0x4db + 0x6d * 0x55 + -0x597 * 0x3; i--) {
               const expReg = RegExp(`%${i}`, 'g')
               lang = lang.replace(expReg, value[i])
             }

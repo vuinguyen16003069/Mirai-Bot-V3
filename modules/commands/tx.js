@@ -87,7 +87,7 @@ async function mergeImages(imagePaths, outputPath) {
 }
 
 exports.run = (o) => {
-  const { args, senderID: sid, threadID: tid, messageID: mid } = o.event
+  const { senderID: sid, threadID: tid } = o.event
   const send = (msg, callback) => o.api.sendMessage(msg, tid, undefined, callback)
   if (/^(create|c|-c)$/.test(o.args[0])) {
     if (tid in d) {
@@ -131,7 +131,7 @@ exports.run = (o) => {
 }
 
 exports.handleEvent = async (o) => {
-  const { args = [], senderID: sid, threadID: tid, messageID: mid } = o.event
+  const { args = [], senderID: sid, threadID: tid } = o.event
   const send = (msg, mid, callback) => {
     let messageId = mid
     let cb = callback
@@ -323,7 +323,7 @@ exports.handleEvent = async (o) => {
 
 exports.handleReply = async (o) => {
   const _ = o.handleReply
-  const { args, senderID: sid, threadID: tid, messageID: mid } = o.event
+  const { args, senderID: sid, threadID: tid } = o.event
   const send = (msg, mid, callback) => {
     let messageId = mid
     let cb = callback
@@ -352,7 +352,7 @@ exports.handleReply = async (o) => {
 
 exports.handleReaction = async (o) => {
   const _ = o.handleReaction
-  const { reaction, userID, threadID: tid, messageID: mid } = o.event
+  const { userID, threadID: tid } = o.event
   const send = (msg, mid, callback) => {
     let messageId = mid
     let cb = callback

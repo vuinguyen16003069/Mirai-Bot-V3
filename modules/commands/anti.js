@@ -12,16 +12,28 @@ module.exports.config = {
     'fs-extra': '',
   },
 }
-const { readdirSync, readFileSync, writeFileSync, existsSync, unlinkSync } = require('fs-extra')
+const { readFileSync, writeFileSync } = require('fs-extra')
 const path = require('path')
 const fs = require('node:fs')
 const _axios = require('axios')
-module.exports.handleReply = async ({ api, event, args, handleReply, Threads }) => {
-  const { senderID, threadID, messageID, messageReply } = event
+module.exports.handleReply = async ({ api, event, handleReply, Threads }) => {
+  const { senderID, threadID, messageID } = event
   const { author, permssion } = handleReply
   const _Tm = require('moment-timezone').tz('Asia/Ho_Chi_Minh').format('HH:mm:ss || DD/MM/YYYY')
-  const pathData = global.anti
-  const dataAnti = JSON.parse(readFileSync(pathData, 'utf8'))
+  const pathData = path.join(__dirname, 'data', 'anti.json')
+  let dataAnti
+  try {
+    dataAnti = JSON.parse(readFileSync(pathData, 'utf8'))
+  } catch {
+    dataAnti = {
+      boxname: [],
+      boximage: [],
+      antiNickname: [],
+      antiout: {},
+    }
+    writeFileSync(pathData, JSON.stringify(dataAnti, null, 4))
+  }
+  let NameBox, threadName, threadInfo
 
   if (author !== senderID) return api.sendMessage(`❎ Bạn không phải người dùng lệnh`, threadID)
 
@@ -35,13 +47,13 @@ module.exports.handleReply = async ({ api, event, args, handleReply, Threads }) 
             threadID,
             messageID
           )
-        var NameBox = dataAnti.boxname
+        NameBox = dataAnti.boxname
         const antiImage = NameBox.find((item) => item.threadID === threadID)
         if (antiImage) {
           dataAnti.boxname = dataAnti.boxname.filter((item) => item.threadID !== threadID)
           api.sendMessage('☑️ Tắt thành công chế độ anti đổi tên box ', threadID, messageID)
         } else {
-          var threadName = (await api.getThreadInfo(event.threadID)).threadName
+          threadName = (await api.getThreadInfo(event.threadID)).threadName
           dataAnti.boxname.push({
             threadID,
             name: threadName,
@@ -63,7 +75,7 @@ module.exports.handleReply = async ({ api, event, args, handleReply, Threads }) 
           dataAnti.boximage = dataAnti.boximage.filter((item) => item.threadID !== threadID)
           api.sendMessage('☑️ Tắt thành công chế độ anti đổi ảnh box', threadID, messageID)
         } else {
-          var threadInfo = await api.getThreadInfo(event.threadID)
+          threadInfo = await api.getThreadInfo(event.threadID)
           const url = threadInfo.imageSrc
           const response = await global.api.imgur(url)
           const img = response.link
@@ -119,7 +131,12 @@ module.exports.handleReply = async ({ api, event, args, handleReply, Threads }) 
       }
       case '5': {
         const filepath = path.join(__dirname, 'data', 'antiemoji.json')
-        const data = JSON.parse(fs.readFileSync(filepath, 'utf8'))
+        let data
+        try {
+          data = JSON.parse(fs.readFileSync(filepath, 'utf8'))
+        } catch {
+          data = {}
+        }
         let emoji = ''
         try {
           const threadInfo = await api.getThreadInfo(threadID)
@@ -132,21 +149,25 @@ module.exports.handleReply = async ({ api, event, args, handleReply, Threads }) 
             emoji: emoji,
             emojiEnabled: true,
           }
-          fs.writeFileSync(filepath, JSON.stringify(data, null, 2), 'utf8')
         } else {
           data[threadID].emojiEnabled = !data[threadID].emojiEnabled
           if (data[threadID].emojiEnabled) {
             data[threadID].emoji = emoji
           }
-          fs.writeFileSync(filepath, JSON.stringify(data, null, 2), 'utf8')
         }
+        fs.writeFileSync(filepath, JSON.stringify(data, null, 2), 'utf8')
         const statusMessage = data[threadID].emojiEnabled ? 'Bật' : 'Tắt'
         api.sendMessage(`☑️ ${statusMessage} thành công chế độ anti emoji`, threadID, messageID)
         break
       }
       case '6': {
         const filepath = path.join(__dirname, 'data', 'antitheme.json')
-        const data = JSON.parse(fs.readFileSync(filepath, 'utf8'))
+        let data
+        try {
+          data = JSON.parse(fs.readFileSync(filepath, 'utf8'))
+        } catch {
+          data = {}
+        }
         let theme = ''
         try {
           const threadInfo = await Threads.getInfo(threadID)
@@ -159,20 +180,19 @@ module.exports.handleReply = async ({ api, event, args, handleReply, Threads }) 
             themeid: theme || '',
             themeEnabled: true,
           }
-          fs.writeFileSync(filepath, JSON.stringify(data, null, 2), 'utf8')
         } else {
           data[threadID].themeEnabled = !data[threadID].themeEnabled
           if (data[threadID].themeEnabled) {
             data[threadID].themeid = theme || ''
           }
-          fs.writeFileSync(filepath, JSON.stringify(data, null, 2), 'utf8')
         }
+        fs.writeFileSync(filepath, JSON.stringify(data, null, 2), 'utf8')
         const statusMessage = data[threadID].themeEnabled ? 'Bật' : 'Tắt'
         api.sendMessage(`☑️ ${statusMessage} thành công chế độ anti theme`, threadID, messageID)
         break
       }
       case '7': {
-        const dataAnti = `${__dirname}/data/antiqtv.json`
+        const dataAntiPath = path.join(__dirname, 'data', 'antiqtv.json')
         const info = await api.getThreadInfo(event.threadID)
         if (!info.adminIDs.some((item) => item.id === api.getCurrentUserID()))
           return api.sendMessage(
@@ -180,7 +200,12 @@ module.exports.handleReply = async ({ api, event, args, handleReply, Threads }) 
             event.threadID,
             event.messageID
           )
-        const data = JSON.parse(fs.readFileSync(dataAnti))
+        let data
+        try {
+          data = JSON.parse(fs.readFileSync(dataAntiPath, 'utf8'))
+        } catch {
+          data = {}
+        }
         const { threadID, messageID } = event
         if (!data[threadID]) {
           data[threadID] = true
@@ -189,7 +214,7 @@ module.exports.handleReply = async ({ api, event, args, handleReply, Threads }) 
           data[threadID] = false
           api.sendMessage(`☑️ Tắt thành công chế độ anti qtv`, threadID, messageID)
         }
-        fs.writeFileSync(dataAnti, JSON.stringify(data, null, 4))
+        fs.writeFileSync(dataAntiPath, JSON.stringify(data, null, 4))
         break
       }
       case '9': {
@@ -200,7 +225,6 @@ module.exports.handleReply = async ({ api, event, args, handleReply, Threads }) 
           `[ CHECK ANTI BOX ]\n────────────────────\n|› 1. anti namebox: ${antiBoxname ? 'bật' : 'tắt'}\n|› 2. anti imagebox: ${antiImage ? 'bật' : 'tắt'}\n|› 3. anti nickname: ${antiNickname ? 'bật' : 'tắt'}\n|› 4. anti out: ${dataAnti.antiout[threadID] ? 'bật' : 'tắt'}\n────────────────────\n|› Trên kia là các trạng thái của từng anti`,
           threadID
         )
-        break
       }
       default: {
         return api.sendMessage(`❎ Số bạn chọn không có trong lệnh`, threadID)
@@ -209,7 +233,7 @@ module.exports.handleReply = async ({ api, event, args, handleReply, Threads }) 
   }
 }
 
-module.exports.run = async ({ api, event, args, permssion, Threads }) => {
+module.exports.run = async ({ api, event, Threads }) => {
   const { threadID, messageID, senderID } = event
   const threadSetting = (await Threads.getData(String(threadID))).data || {}
   const _prefix = Object.hasOwn(threadSetting, 'PREFIX')

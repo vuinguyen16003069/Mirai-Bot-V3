@@ -11,6 +11,7 @@ module.exports.config = {
 
 module.exports.run = async ({ api, event, args, Users }) => {
   const { threadID, messageReply, senderID, mentions, type, participantIDs } = event
+  let msg, num
   switch (args[0]) {
     case 'call':
     case 'Call': {
@@ -45,7 +46,7 @@ module.exports.run = async ({ api, event, args, Users }) => {
         return api.sendMessage(`⚠️ Chỉ quản trị viên mới có thể sử dụng`, threadID)
       }
       const dataNickName = threadInfo.nicknames
-      var _dataNotNN = []
+      _dataNotNN = []
       const objKeys = Object.keys(dataNickName)
       const notFoundIds = participantIDs.filter((id) => !objKeys.includes(id))
       await notFoundIds.map(async (id) => {
@@ -58,29 +59,27 @@ module.exports.run = async ({ api, event, args, Users }) => {
       return api.sendMessage(`✅ Đã xóa thành công những thành viên không setname`, threadID)
     }
     case 'check':
-    case 'Check':
-      {
-        const dataNickName = (await api.getThreadInfo(threadID)).nicknames
-        var dataNotNN = []
-        const objKeys = Object.keys(dataNickName)
-        const notFoundIds = participantIDs.filter((id) => !objKeys.includes(id))
-        var msg = '📝 Danh sách các người dùng chưa setname\n',
-          num = 1
-        await notFoundIds.map(async (id) => {
-          const name = await Users.getNameUser(id)
-          msg += `\n${num++}. ${name}`
+    case 'Check': {
+      const dataNickName = (await api.getThreadInfo(threadID)).nicknames
+      dataNotNN = []
+      const objKeys = Object.keys(dataNickName)
+      const notFoundIds = participantIDs.filter((id) => !objKeys.includes(id))
+      msg = '📝 Danh sách các người dùng chưa setname\n'
+      num = 1
+      await notFoundIds.map(async (id) => {
+        const name = await Users.getNameUser(id)
+        msg += `\n${num++}. ${name}`
+      })
+      msg += `\n\n📌 Thả cảm xúc vào tin nhắn này để kick những người không setname ra khỏi nhóm`
+      return api.sendMessage(msg, threadID, (_error, info) => {
+        global.client.handleReaction.push({
+          name: this.config.name,
+          messageID: info.messageID,
+          author: event.senderID,
+          abc: notFoundIds,
         })
-        msg += `\n\n📌 Thả cảm xúc vào tin nhắn này để kick những người không setname ra khỏi nhóm`
-        return api.sendMessage(msg, threadID, (_error, info) => {
-          global.client.handleReaction.push({
-            name: this.config.name,
-            messageID: info.messageID,
-            author: event.senderID,
-            abc: notFoundIds,
-          })
-        })
-      }
-      break
+      })
+    }
     case 'help':
       return api.sendMessage(
         `1. "setname + name" -> Đổi biệt danh của bạn\n` +
@@ -91,77 +90,67 @@ module.exports.run = async ({ api, event, args, Users }) => {
           `6. "setname call" -> Yêu cầu người dùng chưa đặt biệt danh đặt biệt danh`,
         threadID
       )
-
     case 'all':
     case 'All':
-      {
-        try {
-          const name = event.body.split('all')[1]
-          var num = 1
-          for (const i of participantIDs) {
-            num++
-            try {
-              api.changeNickname(name, threadID, i)
-            } catch (e) {
-              console.log(`${num} ${e}`)
-            }
+      try {
+        const name = event.body.split('all')[1]
+        num = 1
+        for (const i of participantIDs) {
+          num++
+          try {
+            api.changeNickname(name, threadID, i)
+          } catch (e) {
+            console.log(`${num} ${e}`)
           }
-          return api.sendMessage(`✅ Đã đổi biệt danh thành công cho tất cả thành viên`, threadID)
-        } catch (e) {
-          return console.log(e, threadID)
         }
+        return api.sendMessage(`✅ Đã đổi biệt danh thành công cho tất cả thành viên`, threadID)
+      } catch (e) {
+        return console.log(e, threadID)
       }
-      break
   }
   const delayUnsend = 60 // tính theo giây
   if (type === 'message_reply') {
     const name2 = await Users.getNameUser(messageReply.senderID)
     const name = args.join(' ')
-    return (
-      api.changeNickname(`${name}`, threadID, messageReply.senderID),
-      api.sendMessage(
-        `✅ Đã đổi tên của ${name2} thành ${name || 'tên gốc'}`,
-        threadID,
-        (_err, info) =>
-          setTimeout(() => {
-            api.unsendMessage(info.messageID)
-          }, delayUnsend * 1000)
-      )
+    api.changeNickname(`${name}`, threadID, messageReply.senderID)
+    return api.sendMessage(
+      `✅ Đã đổi tên của ${name2} thành ${name || 'tên gốc'}`,
+      threadID,
+      (_err, info) =>
+        setTimeout(() => {
+          api.unsendMessage(info.messageID)
+        }, delayUnsend * 1000)
     )
   } else {
     const mention = Object.keys(mentions)[0]
     const name2 = await Users.getNameUser(mention || senderID)
     if (args.join().indexOf('@') !== -1) {
       const name = args.join(' ')
-      return (
-        api.changeNickname(`${name.replace(mentions[mention], '')}`, threadID, mention),
-        api.sendMessage(
-          `✅ Đã đổi tên của ${name2} thành ${name.replace(mentions[mention], '') || 'tên gốc'}`,
-          threadID,
-          (_err, info) =>
-            setTimeout(() => {
-              api.unsendMessage(info.messageID)
-            }, delayUnsend * 1000)
-        )
+      api.changeNickname(`${name.replace(mentions[mention], '')}`, threadID, mention)
+      return api.sendMessage(
+        `✅ Đã đổi tên của ${name2} thành ${name.replace(mentions[mention], '') || 'tên gốc'}`,
+        threadID,
+        (_err, info) =>
+          setTimeout(() => {
+            api.unsendMessage(info.messageID)
+          }, delayUnsend * 1000)
       )
     } else {
       const name = args.join(' ')
-      return (
-        api.changeNickname(`${name}`, threadID, senderID),
-        api.sendMessage(
-          `✅ Đã đổi tên của bạn thành ${name || 'tên gốc'}`,
-          threadID,
-          (_err, info) =>
-            setTimeout(() => {
-              api.unsendMessage(info.messageID)
-            }, delayUnsend * 1000)
-        )
+      api.changeNickname(`${name}`, threadID, senderID)
+      return api.sendMessage(
+        `✅ Đã đổi tên của bạn thành ${name || 'tên gốc'}`,
+        threadID,
+        (_err, info) =>
+          setTimeout(() => {
+            api.unsendMessage(info.messageID)
+          }, delayUnsend * 1000)
       )
     }
   }
 }
 
-module.exports.handleReaction = async ({ api, event, Threads, handleReaction, getText }) => {
+module.exports.handleReaction = async ({ api, event, handleReaction }) => {
   if (event.userID !== handleReaction.author) return
   if (Array.isArray(handleReaction.abc) && handleReaction.abc.length > 0) {
     let errorMessage = ''

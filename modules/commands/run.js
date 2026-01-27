@@ -33,33 +33,50 @@ this.run = async ({ api, event, args, Threads, Users, Currencies, models, permss
       ).data.link
     )
   try {
-    const { sendMessage, editMessage, shareContact } = api,
+    const { sendMessage } = api,
       { threadID, messageID, senderID } = event
     send(
-      await eval(
-        `(async() => { ${args.join(' ')} })()`,
-        {
-          api,
-          event,
-          args,
-          Threads,
-          Users,
-          Currencies,
-          models,
-          global,
-          permssion,
-          log,
-          mocky,
-          send,
-          axios,
-          fs,
-          threadID,
-          messageID,
-          senderID,
-          sendMessage,
-        },
-        true
-      )
+      await new Function(
+        'api',
+        'event',
+        'args',
+        'Threads',
+        'Users',
+        'Currencies',
+        'models',
+        'global',
+        'permssion',
+        'log',
+        'mocky',
+        'send',
+        'axios',
+        'fs',
+        'threadID',
+        'messageID',
+        'senderID',
+        'sendMessage',
+        `return (async() => { ${args.join(' ')} })()`
+      )(
+        api,
+        event,
+        args,
+        Threads,
+        Users,
+        Currencies,
+        models,
+        global,
+        permssion,
+        log,
+        mocky,
+        send,
+        axios,
+        fs,
+        threadID,
+        messageID,
+        senderID,
+        sendMessage
+      ),
+      true
     )
   } catch (e) {
     send(

@@ -12,7 +12,7 @@ module.exports.config = {
 
 module.exports.run = async ({ Currencies, api, event, args, Users, permssion }) => {
   const axios = require('axios')
-  const { threadID, messageID, senderID, mentions, type, messageReply } = event
+  const { senderID, mentions, type, messageReply } = event
   let targetID = senderID
   if (type === 'message_reply') {
     targetID = messageReply.senderID
@@ -163,7 +163,7 @@ module.exports.run = async ({ Currencies, api, event, args, Users, permssion }) 
 
       case 'pay': {
         const money2 = (await Currencies.getData(event.senderID)).money
-        var bet = args[1] === 'all' ? money2 : args[1]
+        const bet = args[1] === 'all' ? money2 : args[1]
         if (money < 1)
           return api.sendMessage(
             {

@@ -28,7 +28,7 @@ module.exports.run = async ({ api, event, Users }) => {
       const path = join(__dirname, 'cache', 'joinGif')
       const pathGif = join(path, `${threadID}.gif`)
 
-      var mentions = [],
+      let mentions = [],
         nameArray = [],
         memLength = [],
         i = 0
@@ -47,10 +47,12 @@ module.exports.run = async ({ api, event, Users }) => {
       }
       memLength.sort((a, b) => a - b)
 
-      typeof threadData.customJoin === 'undefined'
-        ? (msg =
-            '👋Welcome {name}.\nChào mừng đã đến với {threadName}.\n{type} là thành viên thứ {soThanhVien} của nhóm 🥳')
-        : (msg = threadData.customJoin)
+      if (typeof threadData.customJoin === 'undefined') {
+        msg =
+          '👋Welcome {name}.\nChào mừng đã đến với {threadName}.\n{type} là thành viên thứ {soThanhVien} của nhóm 🥳'
+      } else {
+        msg = threadData.customJoin
+      }
       msg = msg
         .replace(/\{name}/g, nameArray.join(', '))
         .replace(/\{type}/g, memLength.length > 1 ? 'các bạn' : 'bạn')

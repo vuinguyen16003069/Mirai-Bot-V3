@@ -1,14 +1,4 @@
-const {
-  readdirSync,
-  readFileSync,
-  writeFileSync,
-  existsSync,
-  unlinkSync,
-  rm,
-  emptyDir,
-} = require('fs-extra')
-const { join, resolve } = require('path')
-const { execSync } = require('child_process')
+const { readdirSync, readFileSync, writeFileSync, emptyDir } = require('fs-extra')
 const login = require('@dongdev/fca-unofficial')
 const fs = require('fs-extra')
 const moment = require('moment-timezone')
@@ -74,8 +64,8 @@ for (const item of langData) {
 global.getText = (...args) => {
   const langText = global.language
   if (!Object.hasOwn(langText, args[0])) throw `${__filename} - Not found key language: ${args[0]}`
-  var text = langText[args[0]][args[1]]
-  for (var i = args.length - 1; i > 0; i--) {
+  let text = langText[args[0]][args[1]]
+  for (let i = args.length - 1; i > 0; i--) {
     const regEx = RegExp(`%${i}`, 'g')
     text = text.replace(regEx, args[i + 1])
   }
@@ -199,7 +189,13 @@ function onBot({ models }) {
               if (res.data.fb_scraping_warning_clear.success) {
                 logger('Đã vượt cảnh cáo facebook thành công.', '[ SUCCESS ] >')
                 global.handleListen = api.listenMqtt(listenerCallback)
-                setTimeout(() => (mqttClient.end(), connect_mqtt()), 1000 * 60 * 60 * 1)
+                setTimeout(
+                  () => {
+                    mqttClient.end()
+                    connect_mqtt()
+                  },
+                  1000 * 60 * 60 * 1
+                )
                 logger(global.getText('mirai', 'successConnectMQTT'), '[ MQTT ]')
               }
             })
@@ -216,7 +212,13 @@ function onBot({ models }) {
       }
       function connect_mqtt() {
         global.handleListen = api.listenMqtt(listenerCallback)
-        setTimeout(() => (mqttClient.end(), connect_mqtt()), 1000 * 60 * 60 * 1)
+        setTimeout(
+          () => {
+            mqttClient.end()
+            connect_mqtt()
+          },
+          1000 * 60 * 60 * 1
+        )
         logger(global.getText('mirai', 'successConnectMQTT'), '[ MQTT ]')
       }
       connect_mqtt()
@@ -234,6 +236,6 @@ function onBot({ models }) {
     console.log(error)
   }
 })()
-process.on('unhandledRejection', (err, p) => {
+process.on('unhandledRejection', (_err, p) => {
   console.log(p)
 })

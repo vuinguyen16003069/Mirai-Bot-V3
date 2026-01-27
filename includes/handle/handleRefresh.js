@@ -1,11 +1,11 @@
 const leaveNoti = require('../../modules/events/leaveNoti.js')
 
-module.exports = ({ api, models, Users, Threads, Currencies }) => {
+module.exports = ({ api, Users, Threads }) => {
   const logger = require('../../utils/log.js')
 
   return async ({ event }) => {
-    const { threadID, logMessageType, logMessageData, author } = event
-    const { setData, getData, delData, createData } = Threads
+    const { threadID, logMessageType, logMessageData } = event
+    const { setData, getData, delData } = Threads
 
     try {
       const threadData = await getData(threadID)

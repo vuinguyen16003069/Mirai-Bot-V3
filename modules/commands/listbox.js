@@ -10,8 +10,8 @@ module.exports.config = {
   cooldowns: 5,
 }
 
-module.exports.handleReply = async ({ api, event, args, Threads, handleReply }) => {
-  const { threadID, messageID } = event
+module.exports.handleReply = async ({ api, event, Threads, handleReply }) => {
+  const { threadID } = event
   if (parseInt(event.senderID, 10) !== parseInt(handleReply.author, 10)) return
   const moment = require('moment-timezone')
   const time = moment.tz('Asia/Ho_Chi_minh').format('HH:MM:ss L')
@@ -20,20 +20,21 @@ module.exports.handleReply = async ({ api, event, args, Threads, handleReply }) 
   //var groupName = handleReply.groupName[arg[1] - 1];
   switch (handleReply.type) {
     case 'reply': {
+      let arrnum, msg, modules, nums, idgr, groupName, typef
       if (arg[0] === 'ban' || arg[0] === 'Ban') {
-        var arrnum = event.body.split(' ')
-        var msg = ''
-        var modules = '[ 𝐌𝐎𝐃𝐄 ] - 𝗧𝗵𝘂̛̣𝗰 𝘁𝗵𝗶 𝗯𝗮𝗻 «\n'
-        var nums = arrnum.map((n) => parseInt(n, 10))
+        arrnum = event.body.split(' ')
+        msg = ''
+        modules = '[ 𝐌𝐎𝐃𝐄 ] - 𝗧𝗵𝘂̛̣𝗰 𝘁𝗵𝗶 𝗯𝗮𝗻 «\n'
+        nums = arrnum.map((n) => parseInt(n, 10))
         nums.shift()
         for (const num of nums) {
-          var idgr = handleReply.groupid[num - 1]
-          var groupName = handleReply.groupName[num - 1]
+          idgr = handleReply.groupid[num - 1]
+          groupName = handleReply.groupName[num - 1]
 
           const data = (await Threads.getData(idgr)).data || {}
           data.banned = true
           data.dateAdded = time
-          var typef = await Threads.setData(idgr, { data })
+          typef = await Threads.setData(idgr, { data })
           global.data.threadBanned.set(idgr, { dateAdded: data.dateAdded })
           msg += `${typef} ${groupName}\n𝗧𝗜𝗗: ${idgr}\n`
           console.log(modules, msg)
@@ -54,19 +55,19 @@ module.exports.handleReply = async ({ api, event, args, Threads, handleReply }) 
       }
 
       if (arg[0] === 'unban' || arg[0] === 'Unban' || arg[0] === 'ub' || arg[0] === 'Ub') {
-        var arrnum = event.body.split(' ')
-        var msg = ''
-        var modules = '[ 𝐌𝐎𝐃𝐄 ] - 𝗧𝗵𝘂̛̣𝗰 𝘁𝗵𝗶 𝘂𝗻𝗯𝗮𝗻\n'
-        var nums = arrnum.map((n) => parseInt(n, 10))
+        arrnum = event.body.split(' ')
+        msg = ''
+        modules = '[ 𝐌𝐎𝐃𝐄 ] - 𝗧𝗵𝘂̛̣𝗰 𝘁𝗵𝗶 𝘂𝗻𝗯𝗮𝗻\n'
+        nums = arrnum.map((n) => parseInt(n, 10))
         nums.shift()
         for (const num of nums) {
-          var idgr = handleReply.groupid[num - 1]
-          var groupName = handleReply.groupName[num - 1]
+          idgr = handleReply.groupid[num - 1]
+          groupName = handleReply.groupName[num - 1]
 
           const data = (await Threads.getData(idgr)).data || {}
           data.banned = false
           data.dateAdded = null
-          var typef = await Threads.setData(idgr, { data })
+          typef = await Threads.setData(idgr, { data })
           global.data.threadBanned.delete(idgr, 1)
           msg += `${typef} ${groupName}\n𝗧𝗜𝗗: ${idgr}\n`
           console.log(modules, msg)
@@ -85,15 +86,15 @@ module.exports.handleReply = async ({ api, event, args, Threads, handleReply }) 
       }
 
       if (arg[0] === 'out' || arg[0] === 'Out') {
-        var arrnum = event.body.split(' ')
-        var msg = ''
-        var modules = '[ 𝐌𝐎𝐃𝐄 ] - 𝗧𝗵𝘂̛̣𝗰 𝘁𝗵𝗶 𝗢𝘂𝘁\n'
-        var nums = arrnum.map((n) => parseInt(n, 10))
+        arrnum = event.body.split(' ')
+        msg = ''
+        modules = '[ 𝐌𝐎𝐃𝐄 ] - 𝗧𝗵𝘂̛̣𝗰 𝘁𝗵𝗶 𝗢𝘂𝘁\n'
+        nums = arrnum.map((n) => parseInt(n, 10))
         nums.shift()
         for (const num of nums) {
-          var idgr = handleReply.groupid[num - 1]
-          var groupName = handleReply.groupName[num - 1]
-          var typef = api.removeUserFromGroup(`${api.getCurrentUserID()}`, idgr)
+          idgr = handleReply.groupid[num - 1]
+          groupName = handleReply.groupName[num - 1]
+          typef = api.removeUserFromGroup(`${api.getCurrentUserID()}`, idgr)
           msg += `${typef} ${groupName}\n» TID: ${idgr}\n`
           console.log(modules, msg)
         }
@@ -116,15 +117,16 @@ module.exports.run = async function ({ api, event, args }) {
   const permission = ['100074278195157']
   if (!permission.includes(event.senderID))
     return api.sendMessage('cút :))', event.threadID, event.messageID)
+  let inbox, i
   switch (args[0]) {
     case 'all':
       {
-        var inbox = await api.getThreadList(100, null, ['INBOX'])
+        inbox = await api.getThreadList(100, null, ['INBOX'])
         const list = [...inbox].filter((group) => group.isSubscribed && group.isGroup)
-        var listthread = []
-        var _listbox = []
+        const listthread = []
+        const _listbox = []
         /////////
-        for (var groupInfo of list) {
+        for (const groupInfo of list) {
           //let data = (await api.getThreadInfo(groupInfo.threadID));
           //const listUserID = event.participantIDs.filter(ID => ID);
           listthread.push({
@@ -134,21 +136,22 @@ module.exports.run = async function ({ api, event, args }) {
           })
         }
         /////////
-        var listbox = listthread.sort((a, b) => {
+        const listbox = listthread.sort((a, b) => {
           if (a.participants > b.participants) return -1
           if (a.participants < b.participants) return 1
+          return 0
         })
         /////////
-        var groupid = []
-        var groupName = []
-        var page = 1
+        const groupid = []
+        const groupName = []
+        let page = 1
         page = parseInt(args[0], 10) || 1
-        page < -1 ? (page = 1) : ''
-        var limit = 100000
-        var msg = '====『 𝗟𝗜𝗦𝗧 𝗡𝗛𝗢́𝗠 』====\n━━━━━━━━━━━━━━━━━━\n\n'
-        var numPage = Math.ceil(listbox.length / limit)
+        if (page < -1) page = 1
+        const limit = 100000
+        let msg = '====『 𝗟𝗜𝗦𝗧 𝗡𝗛𝗢́𝗠 』====\n━━━━━━━━━━━━━━━━━━\n\n'
+        const numPage = Math.ceil(listbox.length / limit)
 
-        for (var i = limit * (page - 1); i < limit * (page - 1) + limit; i++) {
+        for (i = limit * (page - 1); i < limit * (page - 1) + limit; i++) {
           if (i >= listbox.length) break
           const group = listbox[i]
           msg += `━━━━━━━━━━━━━━━━━━\n${i + 1}. ${group.name}\n💌 𝗧𝗜𝗗: ${group.id}\n👤 𝗦𝗼̂́ 𝘁𝗵𝗮̀𝗻𝗵 𝘃𝗶𝗲̂𝗻: ${group.participants}\n\n`
@@ -176,12 +179,12 @@ module.exports.run = async function ({ api, event, args }) {
 
     default:
       try {
-        var inbox = await api.getThreadList(100, null, ['INBOX'])
+        inbox = await api.getThreadList(100, null, ['INBOX'])
         const list = [...inbox].filter((group) => group.isSubscribed && group.isGroup)
-        var listthread = []
-        var listbox = []
+        const listthread = []
+        let listbox = []
         /////////
-        for (var groupInfo of list) {
+        for (const groupInfo of list) {
           //let data = (await api.getThreadInfo(groupInfo.threadID));
           //const listUserID = event.participantIDs.filter(ID => ID);
           listthread.push({
@@ -191,20 +194,21 @@ module.exports.run = async function ({ api, event, args }) {
             participants: groupInfo.participants.length,
           })
         } //for
-        var listbox = listthread.sort((a, b) => {
+        listbox = listthread.sort((a, b) => {
           if (a.participants > b.participants) return -1
           if (a.participants < b.participants) return 1
+          return 0
         })
-        var groupid = []
-        var groupName = []
-        var page = 1
+        const groupid = []
+        const groupName = []
+        let page = 1
         page = parseInt(args[0], 10) || 1
-        page < -1 ? (page = 1) : ''
-        var limit = 100
-        var msg = '=====『 𝗟𝗜𝗦𝗧 𝗡𝗛𝗢́𝗠 』=====\n\n'
-        var numPage = Math.ceil(listbox.length / limit)
+        if (page < -1) page = 1
+        const limit = 100
+        let msg = '=====『 𝗟𝗜𝗦𝗧 𝗡𝗛𝗢́𝗠 』=====\n\n'
+        const numPage = Math.ceil(listbox.length / limit)
 
-        for (var i = limit * (page - 1); i < limit * (page - 1) + limit; i++) {
+        for (let i = limit * (page - 1); i < limit * (page - 1) + limit; i++) {
           if (i >= listbox.length) break
           const group = listbox[i]
           msg += `━━━━━━━━━━━━━━━━━━\n${i + 1}. ${group.name}\n[🔰] → 𝗧𝗜𝗗: ${group.id}\n[👤] → 𝗦𝗼̂́ 𝘁𝗵𝗮̀𝗻𝗵 𝘃𝗶𝗲̂𝗻: ${group.participants}\n[💬] → 𝗧𝗼̂̉𝗻𝗴 𝘁𝗶𝗻 𝗻𝗵𝗮̆́𝗻: ${group.messageCount}\n`

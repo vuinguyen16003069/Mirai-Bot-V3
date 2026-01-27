@@ -16,7 +16,7 @@ module.exports =
           messageID
         )
       try {
-        var getText2
+        let getText2
         if (handleNeedExec.languages && typeof handleNeedExec.languages === 'object')
           getText2 = (...value) => {
             const react = handleNeedExec.languages || {}
@@ -26,8 +26,8 @@ module.exports =
                 threadID,
                 messageID
               )
-            var lang = handleNeedExec.languages[global.config.language][value[0]] || ''
-            for (var i = value.length; i > 0x2 * -0xb7d + 0x2111 * 0x1 + -0xa17; i--) {
+            let lang = handleNeedExec.languages[global.config.language][value[0]] || ''
+            for (let i = value.length; i > 0x2 * -0xb7d + 0x2111 * 0x1 + -0xa17; i--) {
               const expReg = RegExp(`%${i}`, 'g')
               lang = lang.replace(expReg, value[i])
             }
