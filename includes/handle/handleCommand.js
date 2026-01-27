@@ -143,13 +143,13 @@ module.exports = ({ api, models, Users, Threads, Currencies }) => {
     var permssion = 0
     const threadInfoo = (await Threads.getData(threadID)).threadInfo
     const find = threadInfoo.adminIDs.find((el) => el.id === senderID)
-    if (ADMINBOT.includes(senderID.toString())) permssion = 2
-    else if (NDH.includes(senderID.toString())) permssion = 3
+    if (ADMINBOT.includes(senderID.toString())) permssion = 3
+    else if (NDH.includes(senderID.toString())) permssion = 2
     else if (find) permssion = 1
     const rolePermissions = {
       1: 'Quản Trị Viên',
-      2: 'ADMIN BOT',
-      3: 'Người Hỗ Trợ',
+      2: 'Người Hỗ Trợ',
+      3: 'ADMIN BOT',
     }
     const requiredPermission = rolePermissions[command.config.hasPermssion] || ''
     if (command.config.hasPermssion > permssion) {
