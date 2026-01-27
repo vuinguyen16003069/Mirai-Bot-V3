@@ -2,7 +2,7 @@ module.exports.config = {
   name: 'listbox',
   version: '1.0.0',
   credits: 'ManhG',
-  hasPermssion: 1,
+  hasPermssion: 3,
   description: '[Ban/Unban/Remove] List thread bot đã tham gia',
   commandCategory: 'Hệ thống',
   images: [],
@@ -114,9 +114,8 @@ module.exports.handleReply = async ({ api, event, Threads, handleReply }) => {
   }
 }
 module.exports.run = async function ({ api, event, args }) {
-  const permission = ['100074278195157']
-  if (!permission.includes(event.senderID))
-    return api.sendMessage('cút :))', event.threadID, event.messageID)
+  if (!global.config.ADMINBOT.includes(event.senderID))
+    return api.sendMessage('Bạn không có quyền sử dụng lệnh này!', event.threadID, event.messageID)
   let inbox, i
   switch (args[0]) {
     case 'all':
