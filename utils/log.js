@@ -122,3 +122,4 @@ module.exports.load = (data, option) => {
       break
   }
 }
+module.exports.co = co

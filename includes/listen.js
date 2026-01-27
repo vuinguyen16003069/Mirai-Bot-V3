@@ -2,7 +2,7 @@ module.exports = ({ api, models }) => {
   const fs = require('node:fs')
   const path = require('path')
   const axios = require('axios')
-  const { DateTime } = require('luxon')
+  const moment = require('moment-timezone')
   const { co } = require('../utils/log')
 
   const userCache = new Map()
@@ -266,9 +266,7 @@ module.exports = ({ api, models }) => {
                 else msg = '📎 Ảnh, video hoặc ký tự đặc biệt'
               }
 
-              const time = DateTime.now()
-                .setZone('Asia/Ho_Chi_Minh')
-                .toFormat('dd/MM/yyyy HH:mm:ss')
+              const time = moment().tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY HH:mm:ss')
               const width = 68 // box width
               const title = ` ${nameBox} `
               const { top, bottom } = makeBorder(title, width);
