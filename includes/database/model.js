@@ -1,22 +1,22 @@
-module.exports = function (input) {
-	const force = false;
+module.exports = (input) => {
+  const force = false
 
-	const Users = require("./models/users")(input);
-	const Threads = require("./models/threads")(input);
-	const Currencies = require("./models/currencies")(input);
+  const Users = require('./models/users')(input)
+  const Threads = require('./models/threads')(input)
+  const Currencies = require('./models/currencies')(input)
 
-	Users.sync({ force });
-	Threads.sync({ force });
-	Currencies.sync({ force });
+  Users.sync({ force })
+  Threads.sync({ force })
+  Currencies.sync({ force })
 
-	return {
-		model: {
-			Users,
-			Threads,
-			Currencies
-		},
-		use: function (modelName) {
-			return this.model[`${modelName}`];
-		}
-	}
+  return {
+    model: {
+      Users,
+      Threads,
+      Currencies,
+    },
+    use: function (modelName) {
+      return this.model[`${modelName}`]
+    },
+  }
 }
