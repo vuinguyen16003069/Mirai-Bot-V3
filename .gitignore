@@ -7,3 +7,4 @@ includes/data.sqlite
 Fca_Database/database.sqlite
 *.txt
 fca-config.json
+Fca_Database
