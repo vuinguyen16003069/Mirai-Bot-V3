@@ -4,6 +4,37 @@ const fs = require('fs-extra')
 const moment = require('moment-timezone')
 const logger = require('./utils/log')
 
+function parseCookiesToAppState(cookieString) {
+  if (!cookieString || typeof cookieString !== 'string') {
+    throw new Error('Invalid cookie string provided')
+  }
+
+  const currentTime = new Date().toISOString()
+  const defaultConfig = {
+    domain: 'facebook.com',
+    path: '/',
+    hostOnly: false,
+    creation: currentTime,
+    lastAccessed: currentTime,
+  }
+
+  const cookies = cookieString
+    .split(';')
+    .map((item) => item.trim())
+    .filter(Boolean)
+
+  return cookies
+    .map((cookie) => {
+      const [key, ...valueParts] = cookie.split('=')
+      const value = valueParts.join('=') // Handle values with '=' in them
+      return {
+        key: key.trim(),
+        value: value.trim(),
+        ...defaultConfig,
+      }
+    })
+}
+
 if (!fs.existsSync('./utils/data')) {
   fs.mkdirSync('./utils/data', { recursive: true })
 }
@@ -73,8 +104,25 @@ global.getText = (...args) => {
   return text
 }
 function onBot({ models }) {
+  // Kiểm tra và chuyển đổi appstate.json nếu cần
+  let appState
+  try {
+    const appStateData = JSON.parse(fs.readFileSync('./appstate.json', 'utf8'))
+    if (typeof appStateData === 'string') {
+      console.log('Đang chuyển cookies string trong appstate.json sang định dạng JSON...')
+      appState = parseCookiesToAppState(appStateData)
+      fs.writeFileSync('./appstate.json', JSON.stringify(appState, null, 2))
+      console.log('✅ Đã chuyển đổi thành công!')
+    } else {
+      appState = appStateData
+    }
+  } catch (error) {
+    console.log('Lỗi đọc appstate.json:', error.message)
+    return
+  }
+
   login(
-    { appState: JSON.parse(fs.readFileSync('./appstate.json', 'utf8')) },
+    { appState },
     async (loginError, api) => {
       if (loginError) return console.log(loginError)
       api.setOptions(global.config.FCAOption)
