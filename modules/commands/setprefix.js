@@ -89,7 +89,7 @@ module.exports.handleEvent = async ({ api, event, Threads }) => {
       global.prefixCache[threadID] = prefix;
     }
 
-    api.sendMessage(`Prefix hệ thống: ${global.config.PREFIX}\nPrefix nhóm của bạn: ${prefix}`, threadID, messageID);
+    api.sendMessage(`📎Prefix hệ thống: ${global.config.PREFIX}\n ✏️Prefix nhóm của bạn: ${prefix}`, threadID, messageID);
   } catch (e) {
     console.error('❎ Lỗi khi lấy prefix từ DB:', e);
     api.sendMessage('❎ Không thể lấy prefix của nhóm này!', threadID, messageID);
