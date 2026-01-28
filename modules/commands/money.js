@@ -43,6 +43,9 @@ module.exports.run = async ({ Currencies, api, event, args, Users, permssion }) 
 
     // 2. Xử lý lệnh 'pay' (Người dùng thường)
     if (args[0] === 'pay') {
+      if (targetID === senderID) {
+        return api.sendMessage('❌ Không thể chuyển tiền cho chính mình!', threadID)
+      }
       const senderData = await Currencies.getData(senderID)
       const bet = args[1] === 'all' ? senderData.money : parseInt(args[1], 10)
 
