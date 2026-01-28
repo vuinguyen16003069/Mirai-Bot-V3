@@ -7,14 +7,14 @@ module.exports.config = {
   commandCategory: 'Nhóm',
   usages: '[để trống hoặc nhập ID nhóm]',
   cooldowns: 5,
-};
+}
 
 module.exports.run = async ({ event, args, api, Threads }) => {
-  const { threadID, messageID } = event;
-  const targetID = args[0] || threadID;
+  const { threadID, messageID } = event
+  const targetID = args[0] || threadID
 
   try {
-    const threadInfo = await api.getThreadInfo(targetID);
+    const threadInfo = await api.getThreadInfo(targetID)
 
     // Kiểm tra xem dữ liệu có bị lỗi không (dựa trên thư viện)
     const isError =
@@ -23,25 +23,25 @@ module.exports.run = async ({ event, args, api, Threads }) => {
       threadInfo.__status === 'cooldown' ||
       !threadInfo.threadName ||
       threadInfo.threadName === 'null' ||
-      threadInfo.participantIDs.length === 0;
+      threadInfo.participantIDs.length === 0
 
     if (isError) {
       return api.sendMessage(
         `❌ Không thể lấy thông tin nhóm này.\n` +
           `💡 Mẹo: Hãy đảm bảo nhóm có tin nhắn gần đây, bot là thành viên và thử lại sau 5 phút nếu bị cooldown.`,
         threadID,
-        messageID,
-      );
+        messageID
+      )
     }
 
     // Xử lý dữ liệu cuối cùng
-    const threadName = threadInfo.threadName || threadInfo.name || 'Không tên';
-    const adminList = threadInfo.adminIDs || [];
-    const qtv = Array.isArray(adminList) ? adminList.length : 0;
-    const participantCount = threadInfo.participantIDs ? threadInfo.participantIDs.length : 0;
+    const threadName = threadInfo.threadName || threadInfo.name || 'Không tên'
+    const adminList = threadInfo.adminIDs || []
+    const qtv = Array.isArray(adminList) ? adminList.length : 0
+    const participantCount = threadInfo.participantIDs ? threadInfo.participantIDs.length : 0
 
     // Cập nhật vào Database với dữ liệu mới nhất (Threads.setData sẽ merge và làm mới)
-    await Threads.setData(targetID, { threadInfo });
+    await Threads.setData(targetID, { threadInfo })
 
     return api.sendMessage(
       `✅ Đã làm mới data nhóm thành công!\n` +
@@ -51,15 +51,15 @@ module.exports.run = async ({ event, args, api, Threads }) => {
         `👥 Thành viên: ${participantCount}\n` +
         `📌 Quản trị viên: ${qtv} người`,
       threadID,
-      messageID,
-    );
+      messageID
+    )
   } catch (error) {
-    console.error('[REFRESH ERROR]', error);
-    const errorMsg = error.message || 'Lỗi không xác định';
+    console.error('[REFRESH ERROR]', error)
+    const errorMsg = error.message || 'Lỗi không xác định'
     return api.sendMessage(
       `❌ Lỗi hệ thống: ${errorMsg}\n💡 Thử lại sau hoặc kiểm tra quyền bot.`,
       threadID,
-      messageID,
-    );
+      messageID
+    )
   }
-};
+}
