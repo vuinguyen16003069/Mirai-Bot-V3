@@ -98,7 +98,7 @@ module.exports.handleEvent = async ({ api, event, Threads }) => {
     }
 
     api.sendMessage(
-      `📎Prefix hệ thống: ${global.config.PREFIX}\n ✏️Prefix nhóm của bạn: ${prefix}`,
+      `📎 Prefix hệ thống: ${global.config.PREFIX}\n ✏️ Prefix nhóm của bạn: ${prefix}`,
       threadID,
       messageID
     )
