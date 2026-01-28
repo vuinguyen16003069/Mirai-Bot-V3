@@ -21,7 +21,9 @@ module.exports.run = async ({ api, event, args, Threads }) => {
   try {
     if (prefix.toLowerCase() === 'reset') {
       // Reset prefix về mặc định
-      await Threads.setData(threadID, { prefix: null });
+      const threadData = (await Threads.getData(threadID)).data || {};
+      delete threadData.PREFIX;
+      await Threads.setData(threadID, { data: threadData });
 
       // Cập nhật hoặc xóa cache
       if (global.prefixCache) {
@@ -42,7 +44,10 @@ module.exports.run = async ({ api, event, args, Threads }) => {
         messageID,
       );
     } else {
-      await Threads.setData(threadID, { prefix });
+      // Set prefix mới
+      const threadData = (await Threads.getData(threadID)).data || {};
+      threadData.PREFIX = prefix;
+      await Threads.setData(threadID, { data: threadData });
 
       // Cập nhật hoặc xóa cache
       if (global.prefixCache) {
@@ -76,8 +81,8 @@ module.exports.handleEvent = async ({ api, event, Threads }) => {
 
   try {
     // Lấy prefix từ database
-    const threadData = await Threads.getData(threadID);
-    const prefix = threadData?.prefix && threadData.prefix.trim() !== '' ? threadData.prefix : global.config.PREFIX;
+    const threadData = (await Threads.getData(threadID)).data || {};
+    const prefix = threadData.PREFIX || global.config.PREFIX;
 
     // Cập nhật cache nếu cần
     if (global.prefixCache) {
