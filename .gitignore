@@ -7,3 +7,4 @@ Fca_Database/database.sqlite
 *.txt
 fca-config.json
 biome.json
+appstate.json
