@@ -10,7 +10,7 @@ module.exports.config = {
 }
 
 module.exports.run = async ({ api, event, Users }) => {
-  const { join } = global.nodemodule.path
+  const { join } = require('path')
   const { threadID } = event
   if (event.logMessageData.addedParticipants.some((i) => i.userFbId === api.getCurrentUserID())) {
     api.changeNickname(
