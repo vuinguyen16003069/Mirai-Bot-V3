@@ -46,15 +46,9 @@ async function loadConfig() {
   // Update music
   const audioEl = document.getElementById('backgroundAudio')
   const trackNameEl = document.querySelector('.track-name')
-  const trackLinkEl = document.getElementById('track-link')
 
   if (cfg.MusicLink) {
     if (trackNameEl) trackNameEl.innerText = 'Custom Music'
-    if (trackLinkEl) {
-      trackLinkEl.style.display = ''
-      trackLinkEl.href = cfg.MusicLink
-      trackLinkEl.textContent = 'Open track'
-    }
     if (audioEl) {
       audioEl.src = cfg.MusicLink
       audioEl.style.display = ''
@@ -63,7 +57,6 @@ async function loadConfig() {
     }
   } else {
     if (trackNameEl) trackNameEl.innerText = 'No track available'
-    if (trackLinkEl) trackLinkEl.style.display = 'none'
     if (audioEl) audioEl.style.display = 'none'
   }
 }
