@@ -155,6 +155,12 @@ canvas {
   background: transparent;
 }
 
+#playMusicPrompt {
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+}
+
 .mini-controls {
   display: flex;
   align-items: center;

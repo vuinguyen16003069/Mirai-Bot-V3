@@ -45,7 +45,6 @@ async function loadConfig() {
 
   // Update music
   const audioEl = document.getElementById('backgroundAudio')
-  const playPromptBtn = document.getElementById('playMusicPrompt')
   const trackNameEl = document.querySelector('.track-name')
   const trackLinkEl = document.getElementById('track-link')
 
@@ -59,36 +58,13 @@ async function loadConfig() {
     if (audioEl) {
       audioEl.src = cfg.MusicLink
       audioEl.style.display = ''
-      if (playPromptBtn) playPromptBtn.disabled = false
       // try autoplay silently
       audioEl.play().catch(() => {})
-    }
-    if (playPromptBtn) {
-      playPromptBtn.style.display = ''
-      playPromptBtn.textContent = 'Bật nhạc'
-      playPromptBtn.disabled = false
     }
   } else {
     if (trackNameEl) trackNameEl.innerText = 'No track available'
     if (trackLinkEl) trackLinkEl.style.display = 'none'
     if (audioEl) audioEl.style.display = 'none'
-    if (playPromptBtn) {
-      playPromptBtn.style.display = ''
-      playPromptBtn.disabled = true
-      playPromptBtn.textContent = 'No track'
-    }
-  }
-
-  if (playPromptBtn && audioEl) {
-    playPromptBtn.addEventListener('click', async () => {
-      if (!audioEl.src) return showToast('Không có track để phát')
-      try {
-        await audioEl.play()
-      } catch (err) {
-        console.log('Play failed:', err)
-        showToast('Không thể phát nhạc')
-      }
-    })
   }
 }
 
@@ -154,7 +130,7 @@ function initSnow() {
     // negative delay but bounded to the duration so flakes are not already completed
     const delay = -Math.random() * baseDuration
     const opacity = Math.random() * 0.7 + 0.15
-    f.style.left = `${left}%`;
+    f.style.left = `${left}%`
     f.style.width = `${size}px`
     f.style.height = `${size}px`
     f.style.opacity = `${opacity}`
@@ -300,7 +276,7 @@ function init() {
     const lh = fontSize * 1.1
     const offset = -((lines.length - 1) * lh) / 2
     for (let i = 0; i < lines.length; i++) {
-      ctx.fillText(lines[i], w / 2, textY + offset + i * lh);
+      ctx.fillText(lines[i], w / 2, textY + offset + i * lh)
     }
   }
 
