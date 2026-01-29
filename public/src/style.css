@@ -1,12 +1,12 @@
 
 :root {
-  --primary-color: #7c3aed;
-  --secondary-color: #2563eb;
-  --bg-color: #0b0f14;
-  --surface: rgba(255, 255, 255, 0.03);
-  --text-color: #e6eef8;
-  --muted: rgba(230, 238, 248, 0.7);
-  --accent-color: #22d3ee;
+  --primary-color: #00bcd4;
+  --secondary-color: #0097a7;
+  --bg-color: #0a0a0a;
+  --surface: rgba(255, 255, 255, 0.05);
+  --text-color: #ffffff;
+  --muted: rgba(255, 255, 255, 0.7);
+  --accent-color: #00d4ff;
 }
 
 * {
@@ -15,10 +15,11 @@
 /* .select-region removed: region UI removed from informational page */
 body {
   font-family: "Poppins", sans-serif;
-  background: linear-gradient(180deg, #05060a 0%, #0b0f14 60%);
+  background: linear-gradient(180deg, #000000 0%, #0a0a0a 50%, #1a1a2e 100%);
   color: var(--text-color);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
 }
 
 /* Topbar */
@@ -32,8 +33,9 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 10px 18px;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
-  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+  background: linear-gradient(90deg, rgba(0, 212, 255, 0.1), rgba(0, 188, 212, 0.05));
+  border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+  backdrop-filter: blur(10px);
 }
 .topbar-right {
   display: flex;
@@ -105,11 +107,12 @@ body {
   max-width: 1100px;
 }
 .hero-inner {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
   padding: 36px;
   border-radius: 14px;
-  box-shadow: 0 20px 60px rgba(2, 6, 23, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.03);
+  box-shadow: 0 20px 60px rgba(0, 212, 255, 0.1), 0 0 20px rgba(0, 212, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
 }
 .hero-title {
   font-size: clamp(20px, 3.6vw, 36px);
@@ -134,6 +137,11 @@ canvas {
   max-width: 900px;
   height: 160px;
   border-radius: 10px;
+  animation: fadeIn 1s ease-in-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .player {
@@ -282,9 +290,11 @@ input[type="checkbox"] {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  transition: all 0.3s ease;
 }
-.control-btn:active {
-  transform: translateY(1px);
+.control-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
 }
 .control-btn[disabled] {
   opacity: 0.5;
