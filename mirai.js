@@ -282,11 +282,11 @@ process.on('unhandledRejection', (_err, p) => {
   console.log(p)
 })
 
-if (global.config.HTML && global.config.HTML.HTML) {
+if (global.config.HTML?.HTML) {
   const express = require('express')
   const app = express()
   app.use(express.static(path.join(__dirname, 'public')))
-  app.get('/config', (req, res) => {
+  app.get('/config', (_req, res) => {
     res.json(global.config.HTML)
   })
   const port = process.env.PORT || 3000
