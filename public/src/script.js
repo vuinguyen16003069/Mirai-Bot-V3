@@ -1,38 +1,98 @@
 // Modernized script: DPR-aware canvas for particles + DOM-based snow (CSS animations)
 const canvas = document.getElementById('myCanvas')
-const ctx = canvas?.getContext?.('2d') || null
+const ctx = canvas?.getContext?.('2d', { willReadFrequently: true }) || null
 let points = []
 const pointCount = 200
 const str = 'FCA-UNOFFICIAL'
 const baseFontFamily = "'Poppins', sans-serif"
 
-// Load config from server
-fetch('/config')
-  .then((res) => res.json())
-  .then((data) => {
-    // Update username
-    const userNameEl = document.querySelector('.userName')
-    if (userNameEl) userNameEl.innerText = data.UserName || 'Unknown'
+// Load config from server (try several endpoints and show helpful debug info)
+async function loadConfig() {
+  const endpoints = ['/config']
+  let lastErr = null
+  let data = null
 
-    // Update avatar initial
-    const avatarEl = document.querySelector('.avatar')
-    if (avatarEl && data.UserName) {
-      avatarEl.innerText = data.UserName.charAt(0).toUpperCase()
-      avatarEl.title = data.UserName
+  for (const ep of endpoints) {
+    try {
+      const res = await fetch(ep)
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      data = await res.json()
+      break
+    } catch (err) {
+      lastErr = err
     }
+  }
 
-    // Update music
-    const audio = document.getElementById('backgroundAudio')
-    if (audio && data.MusicLink) {
-      audio.src = data.MusicLink
-      audio.play().catch((err) => console.log('Audio play failed:', err))
+  if (!data) {
+    console.error('Config fetch failed:', lastErr)
+    showToast('Không lấy được cấu hình (xem console)')
+    return
+  }
+
+  // config may nest under HTML
+  const cfg = data?.HTML || data?.html || data || {}
+
+  // Update username
+  const userNameEl = document.querySelector('.userName')
+  if (userNameEl) userNameEl.innerText = cfg.UserName || 'Unknown'
+
+  // Update avatar initial
+  const avatarEl = document.querySelector('.avatar')
+  if (avatarEl && cfg.UserName) {
+    avatarEl.innerText = cfg.UserName.charAt(0).toUpperCase()
+    avatarEl.title = cfg.UserName
+  }
+
+  // Update music
+  const audioEl = document.getElementById('backgroundAudio')
+  const playPromptBtn = document.getElementById('playMusicPrompt')
+  const trackNameEl = document.querySelector('.track-name')
+  const trackLinkEl = document.getElementById('track-link')
+
+  if (cfg.MusicLink) {
+    if (trackNameEl) trackNameEl.innerText = 'Custom Music'
+    if (trackLinkEl) {
+      trackLinkEl.style.display = ''
+      trackLinkEl.href = cfg.MusicLink
+      trackLinkEl.textContent = 'Open track'
     }
+    if (audioEl) {
+      audioEl.src = cfg.MusicLink
+      audioEl.style.display = ''
+      if (playPromptBtn) playPromptBtn.disabled = false
+      // try autoplay silently
+      audioEl.play().catch(() => {})
+    }
+    if (playPromptBtn) {
+      playPromptBtn.style.display = ''
+      playPromptBtn.textContent = 'Bật nhạc'
+      playPromptBtn.disabled = false
+    }
+  } else {
+    if (trackNameEl) trackNameEl.innerText = 'No track available'
+    if (trackLinkEl) trackLinkEl.style.display = 'none'
+    if (audioEl) audioEl.style.display = 'none'
+    if (playPromptBtn) {
+      playPromptBtn.style.display = ''
+      playPromptBtn.disabled = true
+      playPromptBtn.textContent = 'No track'
+    }
+  }
 
-    // Update track name
-    const trackNameEl = document.querySelector('.track-name')
-    if (trackNameEl) trackNameEl.innerText = data.MusicLink ? 'Custom Music' : 'Default Track'
-  })
-  .catch((err) => console.log('Config fetch failed:', err))
+  if (playPromptBtn && audioEl) {
+    playPromptBtn.addEventListener('click', async () => {
+      if (!audioEl.src) return showToast('Không có track để phát')
+      try {
+        await audioEl.play()
+      } catch (err) {
+        console.log('Play failed:', err)
+        showToast('Không thể phát nhạc')
+      }
+    })
+  }
+}
+
+loadConfig()
 
 // Generate session id
 const sessionId = crypto?.randomUUID?.() || Math.random().toString(36).substr(2, 9)
@@ -363,24 +423,7 @@ if (audio) {
   }
 }
 
-// Read current config on load for UI improvements
-fetch('/api/config')
-  .then((r) => r.json())
-  .then((cfg) => {
-    if (cfg?.html?.UserName) {
-      const name = document.querySelector('.userName')
-      if (name) name.textContent = cfg.html.UserName
-      const avatar = document.querySelector('.avatar')
-      if (avatar) avatar.textContent = cfg.html.UserName.charAt(0).toUpperCase()
-    }
-    if (cfg?.html?.MusicLink) {
-      const tn = document.querySelector('.track-name')
-      if (tn) tn.textContent = 'Custom Track'
-      const a = document.getElementById('backgroundAudio')
-      if (a && cfg.html.MusicLink) a.src = cfg.html.MusicLink
-    }
-  })
-  .catch(() => {})
+// Note: removed duplicate /api/config fetch; primary config loaded above from /config.json
 
 // Region picker removed from informational page
 
