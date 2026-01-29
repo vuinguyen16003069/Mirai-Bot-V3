@@ -281,3 +281,16 @@ function onBot({ models }) {
 process.on('unhandledRejection', (_err, p) => {
   console.log(p)
 })
+
+if (global.config.HTML && global.config.HTML.HTML) {
+  const express = require('express')
+  const app = express()
+  app.use(express.static(path.join(__dirname, 'public')))
+  app.get('/config', (req, res) => {
+    res.json(global.config.HTML)
+  })
+  const port = process.env.PORT || 3000
+  app.listen(port, () => {
+    logger(`Web server running on port ${port}`, '[ WEB ]')
+  })
+}
