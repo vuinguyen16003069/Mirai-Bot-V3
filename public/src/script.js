@@ -34,6 +34,11 @@ fetch('/config')
   })
   .catch((err) => console.log('Config fetch failed:', err))
 
+// Generate session id
+const sessionId = crypto?.randomUUID?.() || Math.random().toString(36).substr(2, 9)
+const sessionEl = document.getElementById('session-id')
+if (sessionEl) sessionEl.innerText = sessionId
+
 // DOM-based snow configuration
 const snowLayerId = 'snowLayer'
 let snowEnabled = true
