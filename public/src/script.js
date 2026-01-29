@@ -8,7 +8,7 @@ const baseFontFamily = "'Poppins', sans-serif"
 
 // Load config from server (try several endpoints and show helpful debug info)
 async function loadConfig() {
-  const endpoints = ['/config']
+  const endpoints = ['/config.json', '/config']
   let lastErr = null
   let data = null
 

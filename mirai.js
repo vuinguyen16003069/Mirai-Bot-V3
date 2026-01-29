@@ -289,6 +289,14 @@ if (global.config.HTML?.HTML) {
   app.get('/config', (_req, res) => {
     res.json(global.config.HTML)
   })
+  app.get('/config.json', (_req, res) => {
+    // Return full config but remove sensitive fields
+    const safeConfig = { ...global.config }
+    delete safeConfig.EMAIL
+    delete safeConfig.PASSWORD
+    delete safeConfig.OTPKEY
+    res.json(safeConfig)
+  })
   const port = process.env.PORT || 3000
   app.listen(port, () => {
     logger(`Web server running on port ${port}`, '[ WEB ]')
