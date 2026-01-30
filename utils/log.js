@@ -72,7 +72,7 @@ if (theme.toLowerCase() === 'blue') {
   co = gradient(['#0a658a', '#0a7f8a', '#0db5aa'])
   _error = (text) => chalk.bold(chalk.redBright(text))
 } else if (theme === 'hacker') {
-  cra = gradient(['#4be813'])
+  cra = gradient(['#4be813', '#00ff00'])
   co = gradient(['#47a127', '#0eed19', '#27f231'])
   _error = (text) => chalk.bold(chalk.redBright(text))
 } else {
