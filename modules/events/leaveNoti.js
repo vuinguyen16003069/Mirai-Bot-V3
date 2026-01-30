@@ -28,33 +28,35 @@ module.exports.run = async ({ api, event, Users, Threads }) => {
     const { threadID } = event
     const iduser = event.logMessageData.leftParticipantFbId
     if (iduser === api.getCurrentUserID()) return
+
     const moment = require('moment-timezone')
     const time = moment.tz('Asia/Ho_Chi_Minh').format('DD/MM/YYYY || HH:mm:ss')
-    const threadDataCache = global.data.threadData.get(parseInt(threadID, 10))
-    const data = threadDataCache || (await Threads.getData(threadID)).data
+
+    const threadData = await Threads.getData(threadID)
+    const data = threadData.data || {}
+
     const userData = await Users.getData(event.author)
-    const nameAuthor = userData.name || ''
-    const name = global.data.userName.get(iduser) || (await Users.getNameUser(iduser))
+    const nameAuthor = userData.name || 'Unknown'
+    const name =
+      global.data.userName.get(iduser) || (await Users.getNameUser(iduser)) || 'Unknown User'
 
     const type =
       event.author === iduser ? 'đã tự rời khỏi nhóm' : `đã bị ${nameAuthor} kick khỏi nhóm`
 
-    let msg
-    data.customLeave ||
-      '{name} {type}\n\nLink FB ⬇️\nhttps://www.facebook.com/profile.php?id={iduser}'
+    const defaultMsg =
+      '{name} {type}\n\nLink FB ⬇️\nhttps://www.facebook.com/profile.php?id={iduser}\n\nThời gian: {time}'
+    let msg = data.customLeave || defaultMsg
+
     msg = msg
       .replace(/\{name}/g, name)
       .replace(/\{type}/g, type)
       .replace(/\{iduser}/g, iduser)
       .replace(/\{author}/g, nameAuthor)
       .replace(/\{time}/g, time)
-    return new Promise((resolve, reject) => {
-      api.sendMessage(msg, threadID, (err) => {
-        if (err) reject(err)
-        else resolve()
-      })
-    })
-  } catch (e) {
-    console.log(e)
+
+    // Send message
+    await api.sendMessage(msg, threadID)
+  } catch (error) {
+    console.error('Error in leaveNoti:', error)
   }
 }
