@@ -1,8 +1,11 @@
+// <===> modules/commands/anti.js <===//
+// This file handles the configuration of anti features (enable/disable)
+// The execution logic is in modules/events/anti.js
 module.exports.config = {
   name: 'anti',
   version: '4.1.5',
   hasPermssion: 1,
-  credits: 'BraSL',
+  credits: 'BraSL mod by G3K',
   description: 'Anti change Box chat vip pro',
   commandCategory: 'Nhóm',
   usages: 'anti dùng để bật tắt',
@@ -77,11 +80,9 @@ module.exports.handleReply = async ({ api, event, handleReply, Threads }) => {
         } else {
           threadInfo = await api.getThreadInfo(event.threadID)
           const url = threadInfo.imageSrc
-          const response = await global.api.imgur(url)
-          const img = response.link
           dataAnti.boximage.push({
             threadID,
-            url: img,
+            url: url,
           })
           api.sendMessage('☑️ Bật thành công chế độ anti đổi ảnh box', threadID, messageID)
         }
@@ -233,12 +234,15 @@ module.exports.handleReply = async ({ api, event, handleReply, Threads }) => {
   }
 }
 
-module.exports.run = async ({ api, event, Threads }) => {
+module.exports.run = async ({ api, event, Threads, permssion }) => {
   const { threadID, messageID, senderID } = event
   const threadSetting = (await Threads.getData(String(threadID))).data || {}
   const _prefix = Object.hasOwn(threadSetting, 'PREFIX')
     ? threadSetting.PREFIX
     : global.config.PREFIX
+
+  // Permission is already checked by framework via hasPermssion: 1
+
   return api.sendMessage(
     `╭─────────────⭓\n│ Anti Change Info Group\n├─────⭔\n│ 1. anti namebox: cấm đổi tên nhóm\n│ 2. anti boximage: cấm đổi ảnh nhóm\n│ 3. anti nickname: cấm đổi biệt danh người dùng\n│ 4. anti out: cấm thành viên out chùa\n│ 5. anti emoji: cấm thay đổi emoji nhóm\n│ 6. anti theme: cấm thay đổi chủ đề nhóm\n│ 7. anti qtv: cấm thay qtv nhóm (tránh bị cướp box)\n│ 8. anti join: cấm thêm thành viên mới vào nhóm\n│ 9. check trạng thái anti của nhóm\n├────────⭔\n│ 📌 Reply (phản hồi) theo stt để chọn chế độ mà bạn muốn thay đổi trạng thái\n╰─────────────⭓`,
     threadID,
