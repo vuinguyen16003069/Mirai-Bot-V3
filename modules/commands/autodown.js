@@ -1,20 +1,50 @@
 const axios = require('axios')
+const fs = require('fs-extra')
+const path = require('path')
 const BASE_URL = 'https://api.satoru.click/api/downall?url='
+const STATE_FILE = path.join(__dirname, 'data', 'autodown_state.json')
+
+// Load autodown state
+const loadState = () => {
+  try {
+    if (fs.existsSync(STATE_FILE)) {
+      return fs.readJsonSync(STATE_FILE)
+    }
+  } catch (error) {
+    console.error('Error loading autodown state:', error)
+  }
+  return {}
+}
+
+// Save autodown state
+const saveState = (state) => {
+  try {
+    fs.ensureDirSync(path.dirname(STATE_FILE))
+    fs.writeJsonSync(STATE_FILE, state, { spaces: 2 })
+  } catch (error) {
+    console.error('Error saving autodown state:', error)
+  }
+}
 
 this.config = {
   name: 'autodown',
   version: '1.0.0',
   hasPermssion: 2,
-  credits: 'DongDev', //Thay credit làm 🐶
+  credits: 'DongDev',
   description: 'Autodown Facebook, Tiktok, YouTube, Instagram, Bilibili, Douyin, Capcut, Threads',
   commandCategory: 'Tiện ích',
-  usages: '[]',
+  usages: '[on/off] - Bật/tắt autodown cho nhóm',
   cooldowns: 5,
   prefix: true,
 }
 this.handleEvent = async ({ api, event, args }) => {
   if (event.senderID === api.getCurrentUserID()) return
   if (!args) return
+
+  // Check if autodown is enabled for this thread
+  const state = loadState()
+  if (!state[event.threadID] || !state[event.threadID].enabled) return
+
   const stream = (url, ext = 'jpg') =>
     require('axios')
       .get(url, { responseType: 'stream' })
@@ -85,4 +115,24 @@ this.handleEvent = async ({ api, event, args }) => {
   }
 }
 
-this.run = async () => {}
+this.run = async ({ api, event, args }) => {
+  const state = loadState()
+  const threadID = event.threadID
+
+  if (!state[threadID]) {
+    state[threadID] = { enabled: false }
+  }
+
+  if (args[0] === 'on') {
+    state[threadID].enabled = true
+    saveState(state)
+    api.sendMessage('✅ Đã bật autodown cho nhóm này!', threadID, event.messageID)
+  } else if (args[0] === 'off') {
+    state[threadID].enabled = false
+    saveState(state)
+    api.sendMessage('❌ Đã tắt autodown cho nhóm này!', threadID, event.messageID)
+  } else {
+    const status = state[threadID].enabled ? 'Bật' : 'Tắt'
+    api.sendMessage(`📊 Trạng thái autodown: ${status}\n\n💡 Sử dụng: ${this.config.name} on/off`, threadID, event.messageID)
+  }
+}
