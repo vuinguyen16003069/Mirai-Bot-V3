@@ -1,112 +1,144 @@
-# Mirai Bot Unofficial🤖<sub><sub>v3.0.0🚀</sub></sub>
-<p align="center">
-    <a href="https://nodejs.org/dist/v20.17.0"><img src="https://img.shields.io/badge/Nodejs%20Support-20.x-brightgreen.svg?style=flat-square" alt="Nodejs Support v20.x"></a>
-    <img alt="size" src="https://img.shields.io/github/repo-size/vuinguyen16003069/Mirai-Bot-V3.svg?style=flat-square&label=size">
-    <img alt="code-version" src="https://img.shields.io/badge/dynamic/json?color=red&label=code%20version&prefix=v&query=%24.version&url=https://raw.githubusercontent.com/vuinguyen16003069/Mirai-Bot-V3/refs/heads/main/package.json&style=flat-square">
-    <a href="https://github.com/vuinguyen16003069/Mirai-Bot-V3/commits"><img alt="Commits" src="https://img.shields.io/github/commit-activity/m/vuinguyen16003069/Mirai-Bot-V3.svg?label=commit&style=flat-square"></a>
-<img alt="Visitors" src="https://visitor-badge.laobi.icu/badge?page_id=vuinguyen16003069.Mirai-Bot-V3">
-<img alt="size" src="https://img.shields.io/badge/license-GPL--3.0-green?style=flat-square&color=brightgreen">
-<a href="https://github.com/vuinguyen16003069/Mirai-Bot-V3"><img src="https://i.imgur.com/sxW5AWa.png" alt="Logo"></a>
-<p align="center">
-    A Simple MiraiBot for starting a Messenger Chatbot.
-    <br />
-    <br />
+# 🤖 Mirai Bot Unofficial v3.0.0 🚀
 
-## 📋 Table of Contents
-- [📝 Introduce](#-introduce)
-- [✨ Features](#-features)
-- [🔄 Changes (Mod by Vuinguyen)](#-changes-mod-by-vuinguyen)
-- [📜 Installation](#-installation)
-- [📚 Contributing](#-contributing)
-- [☎️ Contact](#️-contact)
-- [📄 License](#-license)
-    
-## 📝 **introduce**
-<p>
-<strong>Mirai Bot V3 Unofficial</strong> Là một dự án được DongDev update và tiếp tục phát triển từ project Mirai-V2 của Catalizcs and SpermLord xây dựng. Được mod lại bởi <strong><a href="https://www.facebook.com/vui.nguyen.quang.2025">Vuinguyen</a></strong> (<a href="https://github.com/vuinguyen16003069">GitHub</a>) với các cải tiến về bảo mật, hiệu suất và bảo trì code.
+<p align="center">
+  <img src="https://i.imgur.com/sxW5AWa.png" alt="Logo" width="200" style="border-radius: 20px;">
+  <br>
+  <b>Một dự án Messenger Chatbot mạnh mẽ, bảo mật và dễ tùy biến.</b>
 </p>
 
-## ✨ **Features**
-- **Chatbot tự động**: Phản hồi tin nhắn, lệnh trong nhóm Facebook.
-- **Quản lý nhóm**: Duyệt nhóm, quản lý thành viên, anti-spam.
-- **Giải trí**: Các lệnh như taixiu, baucua, music, v.v.
-- **Tiện ích**: Tải video, ảnh, tra cứu thông tin.
-- **Tùy chỉnh**: Hệ thống prefix, config dễ dàng.
-- **Bảo mật**: Login an toàn với appstate.json, chống leak thông tin.
+<p align="center">
+  <a href="https://nodejs.org/dist/v20.17.0"><img src="https://img.shields.io/badge/Node.js-20.x-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Nodejs Support"></a>
+  <a href="https://github.com/vuinguyen16003069/Mirai-Bot-V3"><img src="https://img.shields.io/github/stars/vuinguyen16003069/Mirai-Bot-V3?style=for-the-badge&color=yellow" alt="Stars"></a>
+  <img src="https://img.shields.io/github/repo-size/vuinguyen16003069/Mirai-Bot-V3?style=for-the-badge&color=blue" alt="size">
+  <img src="https://img.shields.io/badge/License-GPL--3.0-brightgreen?style=for-the-badge" alt="license">
+  <img src="https://visitor-badge.laobi.icu/badge?page_id=vuinguyen16003069.Mirai-Bot-V3&style=for-the-badge" alt="Visitors">
+</p>
 
-### 🔄 **Các thay đổi chính (Mod by Vuinguyen)**
-- **Bảo mật**: Chuyển từ `cookie.txt` sang `appstate.json` để login an toàn hơn.
-- **Cập nhật dependencies**: Downgrade `gradient-string` xuống v2 và `chalk` xuống v4 để tương thích.
-- **Tối ưu hình ảnh**: Sử dụng direct Imgur links cho hình ảnh xúc xắc trong các lệnh `taixiu`, `tx`, và `baucua` để giảm phụ thuộc local.
-- **Auto clean cache**: Tự động dọn dẹp thư mục cache khi khởi động bot, giữ nguyên thư mục.
-- **Dọn dẹp code**: Loại bỏ logic `status-hack.json` không cần thiết khỏi lệnh `tx.js`.
-- **Cấu hình Biome**: Thêm công cụ linting và formatting Biome để duy trì code chất lượng.
-- **Git security**: Loại bỏ `fca-config.json` và `database.sqlite` khỏi Git tracking để bảo mật.
+---
 
-## 📜 **Installation**
+## 📋 Mục lục
 
-Sau đây là các bước cơ bản để có thể cài đặt và vận hành.
+- [📝 Giới thiệu](#-giới-thiệu)
+- [✨ Tính năng nổi bật](#-tính-năng-nổi-bật)
+- [🔄 Những cải tiến](#-những-cải-tiến-mod-by-vuinguyen)
+- [📜 Hướng dẫn cài đặt](#-hướng-dẫn-cài-đặt)
+- [🚀 Khởi chạy](#-khởi-chạy)
+- [🛠️ Troubleshooting](#️-troubleshooting)
+- [☎️ Liên hệ hỗ trợ](#-liên-hệ-hỗ-trợ)
+- [📄 License](#-license)
 
-### 💡 **Yêu cầu**
+---
 
-- Dung lượng của máy phải trống tầm 1-2gb.
-- Cần một số phần mềm chỉnh sửa file, khuyến khích sử dụng [notepad++](https://notepad-plus-plus.org/downloads/) hoặc [sublime text 3](https://www.sublimetext.com/3)
-- Cần hiểu biết sơ lược qua về node, javascript.
-- Một tài khoản Facebook dùng để làm bot(Khuyến khích nên sử dụng acc đã bỏ hoặc không còn sử dụng để tránh mất acc hay acc bị khoá).
-- Đối với:
-    - Windows: Cần cài đặt windows-build-tools.
-    - Linux: Cần cài đặt python3 hoặc python2.
-    - Android Sử dụng termux để vận hành bot.
+## 📝 Giới thiệu
 
-### ⚙️ **Cài Đặt**
+**Mirai Bot V3 Unofficial** là phiên bản kế thừa từ dự án của *Catalizcs* & *SpermLord*, được **DongDev** cập nhật và đặc biệt được Mod lại bởi **[Vuinguyen (G3K)](https://github.com/vuinguyen16003069)**.
 
-1. Tải về [Nodejs](https://nodejs.org/en/) và [git](https://git-scm.com/) sau đó cài đặt
-2. Clone source code của bot
-    1. chuột phải ở folder cần cài đặt source code nhấn vào git bash
-    2. nhập
-    ```sh
-    git clone https://github.com/DongDev-VN/Mirai-Bot-V3 Mirai-Bot-V3
-    ```
-    
-3. Cài đặt các package cần thiết
-    1. Mở cmd/terminal ở thư mục bot, LƯU Ý thư mục đó phải có file package.json
-    2. Nhập
-    ```sh
-    npm install
-    ```
-    
-4. Chỉnh sửa file config
-    1. Mở file config.json thông qua notepad++ hoặc sublime text 3 đã cài đặt ở trên
-    2. tùy chỉnh id admin, tên bot, ...
-    3. Sao lưu và đóng lại
-    
-5. Lấy appstate
-    - Sử dụng extension như "Get FB Appstate" hoặc tool để lấy appstate.json
-    - Tạo file appstate.json trong thư mục bot và paste nội dung vào, save để lưu
-      
-6. Chạy bot và tận hưởng
-    1. Nhập
-    ```sh
-      npm start
-      ```
-    2. Đợi source code load file và tận hưởng!
+> [!IMPORTANT]
+> Bản Mod này tập trung tối ưu vào **Bảo mật**, **Hiệu suất hệ thống** và **Khả năng bảo trì lâu dài**.
 
-## 📚 **Contributing**
+---
 
-Sự đóng góp của bạn sẽ khiến cho project ngày càng tốt hơn, các bước để bạn có thể đóng góp
+## ✨ Tính năng nổi bật
 
-1. Fork project này
-2. Tạo một branch mới chứa tính năng của bạn (`git checkout -b feature/AmazingFeature`)
-3. Commit những gì bạn muốn đóng góp (`git commit -m 'Add some AmazingFeature'`)
-4. Đẩy branch chứa tính năng của bạn lên (`git push origin feature/AmazingFeature`)
-5. Tạo một pull request mới và sự đóng góp của bạn đã sẵn sàng để có thể đóng góp!
+| Tính năng | Chi tiết |
+| :--- | :--- |
+| **🤖 Automation** | Phản hồi tin nhắn, thực thi lệnh tự động trong nhóm. |
+| **🛡️ Quản lý** | Anti-spam, duyệt nhóm tự động, quản trị viên thông minh. |
+| **🎮 Giải trí** | Tài xỉu, Bầu cua (sử dụng link Imgur), Music, Game mini. |
+| **🛠️ Công cụ** | Tải video (TikTok, Youtube), tra cứu thông tin nhanh. |
+| **⚙️ Tùy biến** | Hệ thống Prefix linh hoạt, cấu hình `config.json` trực quan. |
 
-<!-- CONTACT -->
-## ☎️ **Contact**
+---
 
-- DongDev - [Facebook](https://facebook.com/minhdong.dev) - [GitHub](https://github.com/DongDev-VN) - dongdz.user@gmail.com
-- Vuinguyen - [Facebook](https://www.facebook.com/vui.nguyen.quang.2025) - [GitHub](https://github.com/vuinguyen16003069)
+## 🔄 Những cải tiến (Mod by Vuinguyen)
 
-## 📄 **License**
+Dưới đây là những thay đổi quan trọng giúp bot vận hành ổn định trên Ubuntu/Linux:
 
-This project is licensed under the GPL-3.0 License - see the [LICENSE](LICENSE) file for details.
+- 🔒 **Security**: Chuyển đổi hoàn toàn sang `appstate.json` (Thay vì cookie truyền thống).
+- ⚡ **Performance**: Downgrade `chalk` (v4) và `gradient-string` (v2) để đạt độ ổn định cao nhất trên Node 20.x.
+- 🧹 **Auto-Clean**: Tự động dọn dẹp thư mục `cache` mỗi khi khởi động, tối ưu dung lượng VPS.
+- 💎 **Code Quality**: Tích hợp **Biome** để linting và formatting code chuẩn chỉnh.
+- 🚫 **Git Protection**: Đã cấu hình `.gitignore` để tránh leak `database.sqlite` và `fca-config.json`.
+
+---
+
+## 📜 Hướng dẫn cài đặt
+
+### 💡 Yêu cầu hệ thống
+
+- **Node.js**: v20.x trở lên ([Download](https://nodejs.org/))
+- **Bộ nhớ**: Trống tối thiểu 1-2GB
+- **Hệ điều hành**: Ubuntu (khuyên dùng), Windows hoặc Android (Termux)
+
+### ⚙️ Các bước thực hiện
+
+1. **Clone Source Code**
+   ```bash
+   git clone https://github.com/vuinguyen16003069/Mirai-Bot-V3.git
+   cd Mirai-Bot-V3
+   ```
+
+2. **Cài đặt Dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Cấu hình hệ thống**
+   - Chỉnh sửa ID Admin và tên bot tại file `config.json`
+   - Tạo file `appstate.json` và dán mã bảo mật của tài khoản bot vào
+
+---
+
+## 🚀 Khởi chạy
+
+```bash
+npm start
+```
+
+Bot sẽ tự động khởi động và hiển thị thông tin đăng nhập.
+
+---
+
+## 🛠️ Troubleshooting
+
+### Lỗi thường gặp
+
+**1. ECONNREFUSED khi load GIF**
+- Nguyên nhân: Server catbox.moe block IP
+- Giải pháp: Bot sẽ tự động fallback chỉ gửi text
+
+**2. Cannot find module '../../../utils/log'**
+- Nguyên nhân: Path resolution issue trên server
+- Giải pháp: Đã fix trong commit mới, pull code mới nhất
+
+**3. Gradient stops error**
+- Nguyên nhân: gradient-string array rỗng
+- Giải pháp: Đã fix theme 'hacker' trong utils/log.js
+
+**4. Checkpoint Facebook**
+- Giải pháp: Dùng appstate mới, tránh login thường xuyên
+
+### Logs quan trọng
+
+- `[ LOGIN ] > Đăng nhập thành công` - Bot online
+- `[ FCA-UNO ] > fca-unoffcial premium` - FCA hoạt động
+- `[ LOADING ] > Loaded X commands` - Commands loaded
+
+---
+
+## ☎️ Liên hệ hỗ trợ
+
+| Developer | Platform | Link |
+| --- | --- | --- |
+| **Vuinguyen (G3K)** | Facebook | [Kết nối](https://facebook.com/vuinguyen16003069) |
+| **Vuinguyen (G3K)** | GitHub | [@vuinguyen16003069](https://github.com/vuinguyen16003069) |
+| **DongDev** | Facebook | [Kết nối](https://facebook.com/DongDev-VN) |
+| **DongDev** | GitHub | [@DongDev-VN](https://github.com/DongDev-VN) |
+
+---
+
+## 📄 License
+
+Dự án được phát hành dưới giấy phép GPL-3.0. Vui lòng tuân thủ các điều khoản khi sử dụng và phát triển lại.
+
+<p align="center">Made with ❤️ by Vuinguyen</p>
