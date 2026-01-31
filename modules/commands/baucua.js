@@ -172,7 +172,7 @@ const parseBetAmount = async (bet, userId, Currencies) => {
 /* ---------- Main run ---------- */
 module.exports.run = async ({ api, event, args, Users, Currencies }) => {
   const { threadID, messageID, senderID } = event
-  const logger = require(process.cwd() + '/utils/log')
+  const logger = require(`${process.cwd()}/utils/log`)
   const baucuaOptions = Object.keys(baucuaPhotos)
   const send = (msg, callback) => api.sendMessage(msg, threadID, callback)
 
