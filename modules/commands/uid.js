@@ -5,7 +5,7 @@ module.exports = {
     hasPermssion: 0,
     credits: 'Mirai Team',
     description: 'Lấy ID người dùng.',
-    commandCategory: 'Công cụ',
+    commandCategory: 'Tiện ích',
     cooldowns: 0,
     images: [],
   },
