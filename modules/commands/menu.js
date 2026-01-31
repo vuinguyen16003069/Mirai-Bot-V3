@@ -102,7 +102,7 @@ module.exports.handleReply = async function ({ handleReply: $, api, event }) {
   const { sendMessage: send, unsendMessage: un } = api
   const { threadID: tid, messageID: mid, senderID: sid, args } = event
   const axios = require('axios')
-  const url = 'https://files.catbox.moe/amblv9.gif'
+  const url = 'https://i.imgur.com/RG6mRkg.gif'
   const img = (await axios.get(url, { responseType: 'stream' })).data
 
   if (sid !== $.author) {
