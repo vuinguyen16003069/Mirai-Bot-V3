@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: 'DC-Nam mod by Vtuan & DongDev fix',
   description: 'Xem danh sách nhóm lệnh, thông tin lệnh',
-  commandCategory: 'Box chat',
+  commandCategory: 'Hệ thống',
   usages: '[...name commands|all]',
   cooldowns: 5,
   images: [],

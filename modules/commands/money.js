@@ -7,7 +7,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: 'Quất & G3K Optimizer',
   description: 'Quản lý tiền tệ: Check, Set, Pay, Tính toán (Admin)',
-  commandCategory: 'Người dùng',
+  commandCategory: 'Tiền tệ',
   usages: '[+/-/*/ / / ++/ --/ +-/ ^/ √/ +%/ -%/ pay] [số tiền]',
   cooldowns: 2,
   usePrefix: false,

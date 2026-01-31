@@ -4,7 +4,7 @@ this.config = {
   hasPermssion: 0,
   credits: 'DongDev',
   description: 'Contact thành viên trong nhóm',
-  commandCategory: 'Công Cụ',
+  commandCategory: 'Công cụ',
   usages: '',
   cooldowns: 5,
   prefix: false,

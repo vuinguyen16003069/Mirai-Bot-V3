@@ -7,7 +7,7 @@ this.config = {
   hasPermssion: 2,
   credits: 'DongDev', //Thay credit làm 🐶
   description: 'Autodown Facebook, Tiktok, YouTube, Instagram, Bilibili, Douyin, Capcut, Threads',
-  commandCategory: 'Tiện ích',
+  commandCategory: 'Công cụ',
   usages: '[]',
   cooldowns: 5,
   prefix: true,

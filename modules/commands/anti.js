@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 1,
   credits: 'BraSL',
   description: 'Anti change Box chat vip pro',
-  commandCategory: 'Box chat',
+  commandCategory: 'Nhóm',
   usages: 'anti dùng để bật tắt',
   cooldowns: 5,
   images: [],

@@ -6,7 +6,7 @@ this.config = {
   hasPermssion: 0,
   credits: 'DC-Nam',
   description: 'Xem danh sách lệnh và info',
-  commandCategory: 'Box chat',
+  commandCategory: 'Hệ thống',
   usages: '[tên lệnh/all]',
   cooldowns: 5,
   images: [],

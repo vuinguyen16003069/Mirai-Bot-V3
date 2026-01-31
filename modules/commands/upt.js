@@ -5,7 +5,7 @@ module.exports = {
     name: 'uptime',
     credit: 'quocduy',
     description: 'View detailed system and bot uptime information',
-    commandCategory: 'System',
+    commandCategory: 'Hệ thống',
     cooldowns: 5,
   },
   run: async ({ api, event }) => {
