@@ -28,8 +28,15 @@ module.exports.run = async function ({ api, event, args }) {
   const { threadID: tid, messageID: mid, senderID: sid } = event
   const cmds = global.client.commands
 
-  const url = 'https://files.catbox.moe/amblv9.gif'
-  const img = (await axios.get(url, { responseType: 'stream' })).data
+  let img
+  try {
+    const url = 'https://files.catbox.moe/amblv9.gif'
+    img = (await axios.get(url, { responseType: 'stream', timeout: 5000 })).data
+  } catch (error) {
+    console.log('Không thể tải GIF menu:', error.message)
+    img = null // Không có attachment
+  }
+
   const time = moment.tz('Asia/Ho_Chi_Minh').format('HH:mm:ss || DD/MM/YYYY')
 
   if (args.length >= 1) {
@@ -44,7 +51,9 @@ module.exports.run = async function ({ api, event, args }) {
         for (const cmd of data)
           txt += `│ ${++count}. ${cmd.config.name} | ${cmd.config.description}\n`
         txt += `\n├────────⭔\n│ ⏳ Tự động gỡ tin nhắn sau: ${autoUnsend.timeOut}s\n╰─────────────⭓`
-        return send({ body: txt, attachment: img }, tid, (_a, b) =>
+        const msgData = { body: txt }
+        if (img) msgData.attachment = img
+        return send(msgData, tid, (_a, b) =>
           autoUnsend.status
             ? setTimeout((v1) => un(v1), 1000 * autoUnsend.timeOut, b.messageID)
             : ''
@@ -69,8 +78,10 @@ module.exports.run = async function ({ api, event, args }) {
     for (const { commandCategory, commandsName } of data)
       txt += `│ ${++count}. ${commandCategory} || có ${commandsName.length} lệnh\n`
     txt += `├────────⭔\n│ 📝 Tổng có: ${global.client.commands.size} lệnh\n│ ⏰ Time: ${time}\n│ 🔎 Reply từ 1 đến ${data.length} để chọn\n│ ⏳ Tự động gỡ tin nhắn sau: ${autoUnsend.timeOut}s\n╰─────────────⭓`
+    const msgData = { body: txt }
+    if (img) msgData.attachment = img
     return send(
-      { body: txt, attachment: img },
+      msgData,
       tid,
       (_a, b) => {
         global.client.handleReply.push({
@@ -116,7 +127,9 @@ module.exports.handleReply = async function ({ handleReply: $, api, event }) {
         txt += `│ ${++count}. ${name} | ${cmdInfo.description}\n`
       }
       txt += `├────────⭔\n│ 🔎 Reply từ 1 đến ${data.commandsName.length} để chọn\n│ ⏳ Tự động gỡ tin nhắn sau: ${autoUnsend.timeOut}s\n│ 📝 Dùng ${prefix(tid)}help + tên lệnh để xem chi tiết cách sử dụng lệnh\n╰─────────────⭓`
-      return send({ body: txt, attachment: img }, tid, (_a, b) => {
+      const msgData = { body: txt }
+      if (img) msgData.attachment = img
+      return send(msgData, tid, (_a, b) => {
         global.client.handleReply.push({
           name: this.config.name,
           messageID: b.messageID,
