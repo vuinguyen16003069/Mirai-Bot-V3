@@ -1,193 +1,204 @@
 module.exports.config = {
   name: 'menu',
-  version: '1.1.1',
+  version: '1.2.0',
   hasPermssion: 0,
-  credits: 'DC-Nam mod by Vtuan & DongDev fix',
+  credits: 'DC-Nam & DongDev (Optimized by G3K)',
   description: 'Xem danh sách nhóm lệnh, thông tin lệnh',
   commandCategory: 'Hệ thống',
   usages: '[...name commands|all]',
   cooldowns: 5,
-  images: [],
   envConfig: {
-    autoUnsend: {
-      status: true,
-      timeOut: 60,
-    },
+    autoUnsend: { status: true, timeOut: 60 },
   },
 }
 
-const { autoUnsend = this.config.envConfig.autoUnsend } =
-  global.config === undefined ? {} : global.config.menu === undefined ? {} : global.config.menu
 const { findBestMatch } = require('string-similarity')
+const axios = require('axios')
+const moment = require('moment-timezone')
+
+// Hàm lấy Prefix nhanh
+const getPrefix = (tid) => global.data.threadData.get(tid)?.PREFIX || global.config.PREFIX
+
+// Hàm tải ảnh/gif làm attachment với retry
+async function getStream(url, maxRetries = 3) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await axios.get(url, { 
+        responseType: 'stream', 
+        timeout: 20000,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+      })
+      return response.data
+    } catch (_e) {
+      if (attempt === maxRetries) return null
+      await new Promise(resolve => setTimeout(resolve, 1000))
+    }
+  }
+}
+
+// URL GIF mặc định
+const DEFAULT_GIF_URL = 'https://i.imgur.com/RG6mRkg.gif'
 
 module.exports.run = async function ({ api, event, args }) {
-  const axios = require('axios')
-  let txt, count
-  const moment = require('moment-timezone')
   const { sendMessage: send, unsendMessage: un } = api
   const { threadID: tid, messageID: mid, senderID: sid } = event
   const cmds = global.client.commands
-
-  let img
-  try {
-    const url = 'https://files.catbox.moe/amblv9.gif'
-    img = (await axios.get(url, { responseType: 'stream', timeout: 5000 })).data
-  } catch (error) {
-    console.log('Không thể tải GIF menu:', error.message)
-    img = null // Không có attachment
-  }
+  const configMenu = global.config?.menu || {}
+  const autoUnsend = { ...this.config.envConfig.autoUnsend, ...configMenu.autoUnsend }
 
   const time = moment.tz('Asia/Ho_Chi_Minh').format('HH:mm:ss || DD/MM/YYYY')
+  const img = await getStream(DEFAULT_GIF_URL)
+  const attachment = img ? [img] : []
 
-  if (args.length >= 1) {
-    if (typeof cmds.get(args.join(' ')) === 'object') {
-      const body = infoCmds(cmds.get(args.join(' ')).config)
-      return send(body, tid, mid)
-    } else {
-      if (args[0] === 'all') {
-        const data = cmds.values()
-        txt = '╭─────────────⭓\n'
-        count = 0
-        for (const cmd of data)
-          txt += `│ ${++count}. ${cmd.config.name} | ${cmd.config.description}\n`
-        txt += `\n├────────⭔\n│ ⏳ Tự động gỡ tin nhắn sau: ${autoUnsend.timeOut}s\n╰─────────────⭓`
-        const msgData = { body: txt }
-        if (img) msgData.attachment = img
-        return send(msgData, tid, (_a, b) =>
-          autoUnsend.status
-            ? setTimeout((v1) => un(v1), 1000 * autoUnsend.timeOut, b.messageID)
-            : ''
-        )
-      } else {
-        const cmdsValue = cmds.values()
-        const arrayCmds = []
-        for (const cmd of cmdsValue) arrayCmds.push(cmd.config.name)
-        const similarly = findBestMatch(args.join(' '), arrayCmds)
-        if (similarly.bestMatch.rating >= 0.3)
-          return send(
-            ` "${args.join(' ')}" là lệnh gần giống là "${similarly.bestMatch.target}" ?`,
-            tid,
-            mid
-          )
-      }
-    }
-  } else {
-    const data = commandsGroup()
-    txt = '╭─────────────⭓\n'
-    count = 0
-    for (const { commandCategory, commandsName } of data)
-      txt += `│ ${++count}. ${commandCategory} || có ${commandsName.length} lệnh\n`
-    txt += `├────────⭔\n│ 📝 Tổng có: ${global.client.commands.size} lệnh\n│ ⏰ Time: ${time}\n│ 🔎 Reply từ 1 đến ${data.length} để chọn\n│ ⏳ Tự động gỡ tin nhắn sau: ${autoUnsend.timeOut}s\n╰─────────────⭓`
-    const msgData = { body: txt }
-    if (img) msgData.attachment = img
+  // Xử lý gửi tin nhắn kèm tự động gỡ
+  const sendWithAutoUnsend = async (data, callback) => {
     return send(
-      msgData,
+      data,
       tid,
-      (_a, b) => {
-        global.client.handleReply.push({
-          name: this.config.name,
-          messageID: b.messageID,
-          author: sid,
-          case: 'infoGr',
-          data,
-        })
-        if (autoUnsend.status) setTimeout((v1) => un(v1), 1000 * autoUnsend.timeOut, b.messageID)
+      (err, info) => {
+        if (callback) callback(err, info)
+        if (autoUnsend.status && !err) {
+          setTimeout(() => un(info.messageID), autoUnsend.timeOut * 1000)
+        }
       },
       mid
     )
   }
+
+  // 1. Xem chi tiết 1 lệnh hoặc tất cả
+  if (args.length >= 1) {
+    if (args[0] === 'all') {
+      let txt = '╭─────────────⭓\n'
+      let count = 0
+      for (const [name, cmd] of cmds) {
+        txt += `│ ${++count}. ${name} | ${cmd.config.description}\n`
+      }
+      txt += `\n├────────⭔\n│ ⏳ Tự động gỡ sau: ${autoUnsend.timeOut}s\n╰─────────────⭓`
+      const msgData = { body: txt }
+      if (attachment.length > 0) msgData.attachment = attachment
+      return sendWithAutoUnsend(msgData)
+    }
+
+    const command = cmds.get(args.join(' '))
+    if (command) {
+      return send(infoCmds(command.config), tid, mid)
+    } else {
+      const arrayCmds = Array.from(cmds.keys())
+      const match = findBestMatch(args.join(' '), arrayCmds)
+      if (match.bestMatch.rating >= 0.3) {
+        return send(
+          `❓ Không thấy lệnh "${args.join(' ')}", ý bạn là "${match.bestMatch.target}"?`,
+          tid,
+          mid
+        )
+      }
+      return send(`❌ Không tìm thấy lệnh bạn yêu cầu.`, tid, mid)
+    }
+  }
+
+  // 2. Menu chính theo nhóm (Mặc định)
+  const dataGr = commandsGroup()
+  let txt = '╭─────────────⭓\n'
+  dataGr.forEach((gr, index) => {
+    txt += `│ ${index + 1}. ${gr.commandCategory} [${gr.commandsName.length}]\n`
+  })
+  txt += `├────────⭔\n│ 📝 Tổng: ${cmds.size} lệnh\n│ ⏰ Time: ${time}\n│ 🔎 Reply số để chọn\n│ ⏳ Gỡ sau: ${autoUnsend.timeOut}s\n╰─────────────⭓`
+
+  const msgData = { body: txt }
+  if (attachment.length > 0) msgData.attachment = attachment
+  return sendWithAutoUnsend(msgData, (_err, info) => {
+    global.client.handleReply.push({
+      name: this.config.name,
+      messageID: info.messageID,
+      author: sid,
+      case: 'infoGr',
+      data: dataGr,
+    })
+  })
 }
 
 module.exports.handleReply = async function ({ handleReply: $, api, event }) {
   const { sendMessage: send, unsendMessage: un } = api
   const { threadID: tid, messageID: mid, senderID: sid, args } = event
-  const axios = require('axios')
-  const url = 'https://i.imgur.com/RG6mRkg.gif'
-  const img = (await axios.get(url, { responseType: 'stream' })).data
 
-  if (sid !== $.author) {
-    const msg = `⛔ Cút ra chỗ khác`
-    return send(msg, tid, mid)
+  if (sid !== $.author) return send(`⛔ Bạn không phải người gọi menu!`, tid, mid)
+
+  const configMenu = global.config?.menu || {}
+  const autoUnsend = { ...this.config.envConfig.autoUnsend, ...configMenu.autoUnsend }
+
+  const sendWithAutoUnsend = async (data, callback) => {
+    return send(
+      data,
+      tid,
+      (err, info) => {
+        if (callback) callback(err, info)
+        if (autoUnsend.status && !err) {
+          setTimeout(() => un(info.messageID), autoUnsend.timeOut * 1000)
+        }
+      },
+      mid
+    )
   }
 
-  switch ($.case) {
-    case 'infoGr': {
-      const data = $.data[+args[0] - 1]
-      if (data === undefined) {
-        const txt = `❎ "${args[0]}" không nằm trong số thứ tự menu`
-        const msg = txt
-        return send(msg, tid, mid)
-      }
+  try {
+    switch ($.case) {
+      case 'infoGr': {
+        const selectedGr = $.data[parseInt(args[0], 10) - 1]
+        if (!selectedGr) return send(`❎ Số thứ tự "${args[0]}" không hợp lệ`, tid, mid)
 
-      un($.messageID)
-      let txt = `╭─────────────⭓\n│ ${data.commandCategory}\n├─────⭔\n`,
-        count = 0
-      for (const name of data.commandsName) {
-        const cmdInfo = global.client.commands.get(name).config
-        txt += `│ ${++count}. ${name} | ${cmdInfo.description}\n`
-      }
-      txt += `├────────⭔\n│ 🔎 Reply từ 1 đến ${data.commandsName.length} để chọn\n│ ⏳ Tự động gỡ tin nhắn sau: ${autoUnsend.timeOut}s\n│ 📝 Dùng ${prefix(tid)}help + tên lệnh để xem chi tiết cách sử dụng lệnh\n╰─────────────⭓`
-      const msgData = { body: txt }
-      if (img) msgData.attachment = img
-      return send(msgData, tid, (_a, b) => {
-        global.client.handleReply.push({
-          name: this.config.name,
-          messageID: b.messageID,
-          author: sid,
-          case: 'infoCmds',
-          data: data.commandsName,
+        await un($.messageID)
+        let txt = `╭── ${selectedGr.commandCategory.toUpperCase()} ──⭓\n`
+        selectedGr.commandsName.forEach((name, i) => {
+          const cmdInfo = global.client.commands.get(name).config
+          txt += `│ ${i + 1}. ${name} | ${cmdInfo.description}\n`
         })
-        if (autoUnsend.status) setTimeout((v1) => un(v1), 1000 * autoUnsend.timeOut, b.messageID)
-      })
-    }
-    case 'infoCmds': {
-      const data = global.client.commands.get($.data[+args[0] - 1])
-      if (typeof data !== 'object') {
-        const txt = `⚠️ "${args[0]}" không nằm trong số thứ tự menu`
-        const msg = txt
-        return send(msg, tid, mid)
+        txt += `├────────⭔\n│ 🔎 Reply số để xem chi tiết\n│ ⏳ Gỡ sau: ${autoUnsend.timeOut}s\n│ 📝 Prefix: ${getPrefix(tid)}\n╰─────────────⭓`
+
+        return sendWithAutoUnsend({ body: txt }, (_err, info) => {
+          global.client.handleReply.push({
+            name: this.config.name,
+            messageID: info.messageID,
+            author: sid,
+            case: 'infoCmds',
+            data: selectedGr.commandsName,
+          })
+        })
       }
 
-      const { config = {} } = data || {}
-      un($.messageID)
-      const msg = infoCmds(config)
-      return send(msg, tid, mid)
+      case 'infoCmds': {
+        const cmdName = $.data[parseInt(args[0], 10) - 1]
+        const command = global.client.commands.get(cmdName)
+        if (!command) return send(`⚠️ Lệnh không tồn tại`, tid, mid)
+
+        await un($.messageID)
+        return send(infoCmds(command.config), tid, mid)
+      }
     }
-    default:
+  } catch (e) {
+    console.error(e)
   }
 }
 
 function commandsGroup() {
-  const array = [],
-    cmds = global.client.commands.values()
-  for (const cmd of cmds) {
-    const { name, commandCategory } = cmd.config
-    const find = array.find((i) => i.commandCategory === commandCategory)
-    !find ? array.push({ commandCategory, commandsName: [name] }) : find.commandsName.push(name)
+  const groups = new Map()
+  for (const [name, cmd] of global.client.commands) {
+    const cat = cmd.config.commandCategory || 'Khác'
+    if (!groups.has(cat)) groups.set(cat, [])
+    groups.get(cat).push(name)
   }
-  array.sort(sortCompare('commandsName'))
-  return array
+  return Array.from(groups, ([commandCategory, commandsName]) => ({
+    commandCategory,
+    commandsName,
+  })).sort((a, b) => b.commandsName.length - a.commandsName.length)
 }
 
 function infoCmds(a) {
-  return `╭── INFO ────⭓\n│ 📔 Tên lệnh: ${a.name}\n│ 🌴 Phiên bản: ${a.version}\n│ 🔐 Quyền hạn: ${premssionTxt(a.hasPermssion)}\n│ 👤 Tác giả: ${a.credits}\n│ 🌾 Mô tả: ${a.description}\n│ 📎 Thuộc nhóm: ${a.commandCategory}\n│ 📝 Cách dùng: ${a.usages}\n│ ⏳ Thời gian chờ: ${a.cooldowns} giây\n╰─────────────⭓`
+  return `╭── INFO ────⭓\n│ 📔 Tên: ${a.name}\n│ 🌴 Ver: ${a.version}\n│ 🔐 Quyền: ${premssionTxt(a.hasPermssion)}\n│ 👤 Tác giả: ${a.credits}\n│ 🌾 Mô tả: ${a.description}\n│ 📎 Nhóm: ${a.commandCategory}\n│ 📝 Dùng: ${a.usages}\n│ ⏳ Chờ: ${a.cooldowns}s\n╰─────────────⭓`
 }
 
 function premssionTxt(a) {
-  return a === 0
-    ? 'Thành Viên'
-    : a === 1
-      ? 'Quản Trị Viên Nhóm'
-      : a === 2
-        ? 'ADMINBOT'
-        : 'Người Điều Hành Bot'
-}
-
-function prefix(a) {
-  const tidData = global.data.threadData.get(a) || {}
-  return tidData.PREFIX || global.config.PREFIX
-}
-
-function sortCompare(k) {
-  return (a, b) => (a[k].length > b[k].length ? 1 : a[k].length < b[k].length ? -1 : 0) * -1
+  const roles = ['Thành Viên', 'Quản Trị Viên Nhóm', 'ADMINBOT', 'Người Điều Hành']
+  return roles[a] || roles[0]
 }
