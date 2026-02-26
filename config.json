@@ -9,7 +9,6 @@
         "selfListenEvent": false,
         "listenTyping": false,
         "autoMarkRead": false,
-        "autoMarkDelivery": false,
         "online": false,
         "emitReady": false,
         "proxy": null
