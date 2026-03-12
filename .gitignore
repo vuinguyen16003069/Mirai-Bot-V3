@@ -4,5 +4,3 @@ utils/data/fbstate.json
 includes/data.sqlite
 Fca_Database/database.sqlite
 *.txt
-fca-config.json
-appstate.json
